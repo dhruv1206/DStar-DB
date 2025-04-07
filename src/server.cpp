@@ -30,6 +30,7 @@
 #include "../include/Database/Persistence/IPersistenceManager.h"
 #include "../include/Database/Persistence/PersistenceFactory.h"
 #include "../include/Database/Observer/IDatabaseObserver.h"
+#include "../include/Database/Decorators/TTLDatabaseDecorator.h"
 
 std::atomic<bool> running(true);
 
@@ -231,7 +232,6 @@ int main(int argc, char *argv[])
     try
     {
         printServerStartedBanner();
-        std::cout << "Hii" << std::endl;
         size_t cacheSizeMB = Constants::DEFAULT_CACHE_SIZE_MB;
         bool enablePersistence = false;
         std::string persistMode = "snapshot";
@@ -250,6 +250,7 @@ int main(int argc, char *argv[])
         cacheSizeMB = result["cache"].as<int>();
 
         db = std::make_unique<Database>(cacheSizeMB);
+        db = std::make_unique<TTLDatabaseDecorator>(std::move(db));
 
         std::cout << "Persistence enabled: " << (enablePersistence ? "true" : "false") << std::endl;
         std::cout << "Persistence mode: " << persistMode << std::endl;
