@@ -47,6 +47,11 @@ public:
         memoryManager->evictIfNeeded(records);
     }
 
+    void insertRecord(const std::string &id, std::any &value, int ttlSeconds) override
+    {
+        throw std::runtime_error("Use TTLDatabaseDecorator for inserting records with TTL.");
+    }
+
     // Update a record with a unique id.
     void updateRecord(const std::string &id, std::any &value) override
     {
@@ -62,6 +67,21 @@ public:
         {
             throw std::runtime_error("Record with id '" + id + "' not found.");
         }
+    }
+
+    void updateRecord(const std::string &id, std::any &value, int ttlSeconds) override
+    {
+        throw std::runtime_error("Use TTLDatabaseDecorator for updating records with TTL.");
+    }
+
+    void setTTL(const std::string &id, int ttlSeconds) override
+    {
+        throw std::runtime_error("Use TTLDatabaseDecorator for setting TTL.");
+    }
+
+    void removeTTL(const std::string &id) override
+    {
+        throw std::runtime_error("Use TTLDatabaseDecorator for removing TTL.");
     }
 
     // Get a record by id.
