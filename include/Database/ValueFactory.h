@@ -28,7 +28,7 @@ class ValueFactory
 {
 public:
     // Create an IValue instance from a type string and a binary buffer.
-    static std::unique_ptr<IValue> createValue(std::string type, std::vector<uint8_t> &data)
+    static std::unique_ptr<IValue> createValue(const std::string& type, std::vector<uint8_t> &data)
     {
         if (type == ValueType::STRING)
         {
@@ -44,7 +44,7 @@ public:
     }
 
     // Alternatively, create a value from a raw string. This is useful when commands insert new values.
-    static std::unique_ptr<IValue> createValue(std::string type, const std::string &rawValue)
+    static std::unique_ptr<IValue> createValue(const std::string& type, const std::string &rawValue)
     {
         if (type == ValueType::STRING)
         {

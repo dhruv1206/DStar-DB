@@ -42,7 +42,14 @@ public:
             }
             catch (const std::exception &ex)
             {
-                std::cerr << "Error serializing record of type: " << value->getType() << " : " << ex.what() << "\n ";
+                if (value)
+                {
+                    std::cerr << "Error serializing record of type: " << value->getType() << " : " << ex.what() << "\n ";
+                }
+                else
+                {
+                    std::cerr << "Error serializing record: " << ex.what() << "\n ";
+                }
             }
             catch (...)
             {

@@ -61,7 +61,7 @@ public:
     void notifyObservers(const std::string &operation, const std::string &recordId, std::shared_ptr<IValue> value)
     {
         for (auto observer : observers)
-            observer->onDatabaseModified(operation, recordId, std::move(value));
+            observer->onDatabaseModified(operation, recordId, value);
     }
 
 private:
