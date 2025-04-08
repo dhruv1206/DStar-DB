@@ -1,6 +1,4 @@
 #include "../include/Database/Record.h"
-#include <shared_mutex>
-#include <mutex>
 
 Record::Record(const std::string id) : id(id) {}
 

@@ -58,7 +58,7 @@ public:
             observer->onDatabaseModified(operation, recordId);
     }
     // Observer registration.
-    void notifyObservers(const std::string &operation, const std::string &recordId, std::unique_ptr<IValue> value)
+    void notifyObservers(const std::string &operation, const std::string &recordId, std::shared_ptr<IValue> value)
     {
         for (auto observer : observers)
             observer->onDatabaseModified(operation, recordId, std::move(value));
