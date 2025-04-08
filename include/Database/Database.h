@@ -58,6 +58,7 @@ public:
     }
 
     void updateRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds) override
+
     {
         throw std::runtime_error("Use TTLDatabaseDecorator for updating records with TTL.");
     }

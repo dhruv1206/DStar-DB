@@ -3,9 +3,11 @@
 
 #include "../IDatabase.h"
 #include "../Record.h"
+
 #include "../IValue.h"
 #include <chrono>
 #include <iostream>
+
 #include <string>
 #include <unordered_map>
 #include <memory>
@@ -47,6 +49,7 @@ public:
     {
         // Delegate to the underlying database.
         db->insertRecord(id, std::move(value));
+
         if (ttlSeconds > 0)
         {
             auto record = db->getRecord(id);
@@ -178,7 +181,6 @@ public:
             }
             for (const auto &id : expired)
             {
-                std::cout << "Key expired: " << id << "\n";
                 ttlMap.erase(id);
             }
         }
