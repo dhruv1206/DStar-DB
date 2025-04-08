@@ -1,8 +1,9 @@
 #ifndef SETCOMMAND_H
 #define SETCOMMAND_H
 
-#include "../../IDatabase.h"
-#include "../ICommand.h"
+#include "../../../IDatabase.h"
+#include "../../ICommand.h"
+#include "../../../ValueFactory.h"
 #include <string>
 #include <sstream>
 #include <vector>
@@ -19,14 +20,15 @@ public:
             return "ERR wrong usage of SET command, expected SET <key> <value>\n";
         }
         std::string key = tokens[1];
-        std::any value = std::any_cast<std::string>(command.substr(command.find(key) + key.length() + 1));
+        std::string valueStr = command.substr(command.find(key) + key.length() + 1);
+        auto value = ValueFactory::createValue(ValueType::STRING, valueStr);
         try
         {
-            db->insertRecord(key, value);
+            db->insertRecord(key, std::move(value));
         }
         catch (const std::exception &e)
         {
-            db->updateRecord(key, value);
+            db->updateRecord(key, std::move(value));
         }
 
         return "OK\n";

@@ -10,19 +10,7 @@
 #include <stdexcept>
 #include <shared_mutex>
 #include <any>
-
-// Structure to hold expiration info for a record.
-struct ExpirationEntry
-{
-    std::string id;
-    std::chrono::steady_clock::time_point expirationTime;
-    bool operator<(const ExpirationEntry &other) const
-    {
-        if (expirationTime == other.expirationTime)
-            return id < other.id;
-        return expirationTime < other.expirationTime;
-    }
-};
+#include "IValue.h"
 
 class Database : public IDatabase
 {
@@ -31,14 +19,14 @@ public:
     Database(size_t cacheSizeMB) : memoryManager(std::make_unique<MemoryManager>(cacheSizeMB)) {};
 
     // Create a new record with a unique id.
-    void insertRecord(const std::string &id, std::any &value) override
+    void insertRecord(const std::string &id, std::unique_ptr<IValue> value) override
     {
         if (records.find(id) != records.end())
         {
             throw std::runtime_error("Record with id '" + id + "' already exists.");
         }
         auto record = std::make_shared<Record>(id);
-        record->setField("value", value);
+        record->setValue(std::move(value));
         size_t recSize = record->approximateSize();
         // Insert into memory manager LFU structure.
         memoryManager->insertKey(id, recSize);
@@ -47,14 +35,19 @@ public:
         memoryManager->evictIfNeeded(records);
     }
 
+    void insertRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds) override
+    {
+        throw std::runtime_error("Use TTLDatabaseDecorator for inserting records with TTL.");
+    }
+
     // Update a record with a unique id.
-    void updateRecord(const std::string &id, std::any &value) override
+    void updateRecord(const std::string &id, std::unique_ptr<IValue> value) override
     {
         auto it = records.find(id);
         if (it != records.end())
         {
             auto record = it->second;
-            record->setField("value", value);
+            record->setValue(std::move(value));
             // Update LFU frequency.
             memoryManager->touch(id);
         }
@@ -62,6 +55,21 @@ public:
         {
             throw std::runtime_error("Record with id '" + id + "' not found.");
         }
+    }
+
+    void updateRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds) override
+    {
+        throw std::runtime_error("Use TTLDatabaseDecorator for updating records with TTL.");
+    }
+
+    void setTTL(const std::string &id, int ttlSeconds) override
+    {
+        throw std::runtime_error("Use TTLDatabaseDecorator for setting TTL.");
+    }
+
+    void removeTTL(const std::string &id) override
+    {
+        throw std::runtime_error("Use TTLDatabaseDecorator for removing TTL.");
     }
 
     // Get a record by id.

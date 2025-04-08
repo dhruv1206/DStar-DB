@@ -9,22 +9,29 @@
 #include "Observer/IDatabaseObserver.h"
 #include <vector>
 #include <any>
+#include "IValue.h"
 
 class IDatabase
 {
 public:
     virtual ~IDatabase() = default;
     // Create a new record with a unique id.
-    virtual void insertRecord(const std::string &id, std::any &value) = 0;
+    virtual void insertRecord(const std::string &id, std::unique_ptr<IValue> value) = 0;
 
     // Create a new record with a unique id and ttl.
-    virtual void insertRecord(const std::string &id, std::any &value, size_t ttlSeconds) = 0;
+    virtual void insertRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds) = 0;
 
     // Update a record with a unique id.
-    virtual void updateRecord(const std::string &id, std::any &value) = 0;
+    virtual void updateRecord(const std::string &id, std::unique_ptr<IValue> value) = 0;
 
     // Update a record with a unique id and ttl.
-    virtual void updateRecord(const std::string &id, std::any &value, size_t ttlSeconds) = 0;
+    virtual void updateRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds) = 0;
+
+    // Set TTL for a record.
+    virtual void setTTL(const std::string &id, int ttlSeconds) = 0;
+
+    // Remove TTL for a record.
+    virtual void removeTTL(const std::string &id) = 0;
 
     // Get a record by id.
     virtual std::shared_ptr<Record> getRecord(const std::string &id) = 0;
@@ -51,11 +58,10 @@ public:
             observer->onDatabaseModified(operation, recordId);
     }
     // Observer registration.
-    template <typename T>
-    void notifyObservers(const std::string &operation, const std::string &recordId, const T &value)
+    void notifyObservers(const std::string &operation, const std::string &recordId, std::unique_ptr<IValue> value)
     {
         for (auto observer : observers)
-            observer->onDatabaseModified(operation, recordId, value);
+            observer->onDatabaseModified(operation, recordId, std::move(value));
     }
 
 private:
