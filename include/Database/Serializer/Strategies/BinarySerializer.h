@@ -35,7 +35,10 @@ public:
             const std::shared_ptr<Record> &record = pair.second;
             SerializationHelper::appendToBuffer(buffer, id); // Store the record ID
             auto value = record->getValue();
-            if(!value) continue; // Skip if value is null
+            if(!value) { // Skip if value is null
+                std::cerr << "Record value is null for ID: " << id << "\n";
+                continue;
+            } 
             try
             {
                 SerializationHelper::appendToBuffer(buffer, value); // Store the record value
