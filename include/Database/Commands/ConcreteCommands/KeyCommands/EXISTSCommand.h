@@ -1,9 +1,9 @@
 #ifndef EXISTSCOMMAND_H
 #define EXISTSCOMMAND_H
 
-#include "../../IDatabase.h"
+#include "../../../IDatabase.h"
 #include <string>
-#include "../ICommand.h"
+#include "../../ICommand.h"
 #include <sstream>
 #include <vector>
 #include <iostream>

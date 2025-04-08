@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <thread>
 
 class SnapshotPersistence : public IPersistenceManager
 {
@@ -26,7 +27,7 @@ public:
     }
 
     // Load database state from snapshot file
-    void load(IDatabase *db)
+    void load(IDatabase *db) override
     {
         std::ifstream in(filename, std::ios::binary);
         if (!in)
@@ -41,11 +42,11 @@ public:
         std::cout << "Database loaded successfully from snapshot.\n";
     }
 
-    void save(const IDatabase *db)
+    void save(const IDatabase *db) override
     {
         try
         {
-            std::cout << "Saving database snapshot to " << filename << "\n";
+            std::cout << "Saving database snapshot.\n";
             // Serialize the database into a binary buffer.
             std::vector<uint8_t> buffer = serializer->serialize(db);
             // Write atomically by writing to a temporary file first.
@@ -59,6 +60,8 @@ public:
             out.write(reinterpret_cast<const char *>(buffer.data()), buffer.size());
             out.flush();
             out.close();
+            // Check any previous file and remove it.
+            std::remove(filename.c_str());
             // Replace the old file with the new snapshot.
             if (std::rename(tempFilename.c_str(), filename.c_str()) != 0)
             {
@@ -75,6 +78,7 @@ public:
             std::cerr << "Unknown error occurred while saving snapshot.\n";
         }
     }
+
     void initialize(IDatabase *db) override
     {
         snapshotThread = std::thread(&SnapshotPersistence::snapshotWorker, this, db, snapshotIntervalSeconds); // Save every intervalSeconds

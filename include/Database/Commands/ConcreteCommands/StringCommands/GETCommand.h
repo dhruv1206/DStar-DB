@@ -1,12 +1,14 @@
 #ifndef GETCOMMAND_H
 #define GETCOMMAND_H
 
-#include "../../IDatabase.h"
+#include "../../../IDatabase.h"
 #include <string>
-#include "../ICommand.h"
+#include "../../ICommand.h"
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include "../../../IValue.h"
+#include "../../../ConcreteValues/StringValue.h"
 
 class GETCommand : public ICommand
 {
@@ -22,8 +24,7 @@ public:
         try
         {
             auto record = db->getRecord(key);
-            std::string value = record->getField<std::string>("value");
-            return "VALUE " + value + "\n";
+            return "VALUE " + record->getValue()->toString() + "\n";
         }
         catch (const std::exception &e)
         {

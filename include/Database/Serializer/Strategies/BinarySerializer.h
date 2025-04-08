@@ -8,13 +8,13 @@
 #include <vector>
 #include <cstdint>
 #include <string>
+#include "../../IValue.h"
 
 class BinarySerializer : public IDBSerializer
 {
 public:
     BinarySerializer()
     {
-        std::cout << "BinarySerializer initialized.\n";
     }
 
     // Serialize the database into a binary buffer
@@ -28,23 +28,36 @@ public:
         std::vector<uint8_t> buffer;
         const std::unordered_map<std::string, std::shared_ptr<Record>> &records = db->getAllRecords();
         size_t records_count = records.size();
-        std::cout << "Serializing database with " << records_count << " records...\n";
         SerializationHelper::appendToBuffer(buffer, records_count); // Store the number of records
         for (const auto &pair : records)
         {
             const std::string &id = pair.first;
             const std::shared_ptr<Record> &record = pair.second;
             SerializationHelper::appendToBuffer(buffer, id); // Store the record ID
-            std::string value;
+            auto value = record->getValue();
+            if(!value) { // Skip if value is null
+                std::cerr << "Record value is null for ID: " << id << "\n";
+                continue;
+            } 
             try
             {
-                value = pair.second->getField<std::string>("value");
+                SerializationHelper::appendToBuffer(buffer, value); // Store the record value
             }
-            catch (const std::bad_any_cast &e)
+            catch (const std::exception &ex)
             {
-                value = "";
+                if (value)
+                {
+                    std::cerr << "Error serializing record of type: " << value->getType() << " : " << ex.what() << "\n ";
+                }
+                else
+                {
+                    std::cerr << "Error serializing record: " << ex.what() << "\n ";
+                }
             }
-            SerializationHelper::appendToBuffer(buffer, value); // Store the record value
+            catch (...)
+            {
+                std::cerr << "Unknown error serializing record of type: " << value->getType() << "\n";
+            }
         }
         return buffer;
     }
@@ -59,7 +72,6 @@ public:
         {
             return;
         }
-        std::cout << "Deserializing database with " << records_count << " records...\n";
         for (size_t i = 0; i < records_count; i++)
         {
             std::string record_id;
@@ -67,16 +79,14 @@ public:
             {
                 return;
             }
-            std::string record_value;
+            std::unique_ptr<IValue> record_value;
             if (!SerializationHelper::readFromBuffer(data, offset, record_value))
             {
                 return;
             }
-            std::any value = record_value; // Convert to std::any
             try
             {
-                std::cout << "Inserting record: " << record_id << " with value: " << record_value << "\n";
-                db->insertRecord(record_id, value); // Insert the record into the database
+                db->insertRecord(record_id, std::move(record_value)); // Insert the record into the database
             }
             catch (const std::exception &ex)
             {

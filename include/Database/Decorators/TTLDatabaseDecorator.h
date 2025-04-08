@@ -3,7 +3,11 @@
 
 #include "../IDatabase.h"
 #include "../Record.h"
+
+#include "../IValue.h"
 #include <chrono>
+#include <iostream>
+
 #include <string>
 #include <unordered_map>
 #include <memory>
@@ -33,18 +37,19 @@ public:
         }
     }
 
-    void insertRecord(const std::string &id, std::any &value) override
+    void insertRecord(const std::string &id, std::unique_ptr<IValue> value) override
     {
         // Delegate to the underlying database.
-        db->insertRecord(id, value);
+        db->insertRecord(id, std::move(value));
         // No TTL provided, so no action needed.
     }
 
     // Insert a record with an optional TTL (in seconds). TTL = 0 means no expiration.
-    void insertRecord(const std::string &id, std::any &value, int ttlSeconds) override
+    void insertRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds) override
     {
         // Delegate to the underlying database.
-        db->insertRecord(id, value);
+        db->insertRecord(id, std::move(value));
+
         if (ttlSeconds > 0)
         {
             auto record = db->getRecord(id);
@@ -60,17 +65,17 @@ public:
         }
     }
 
-    void updateRecord(const std::string &id, std::any &value) override
+    void updateRecord(const std::string &id, std::unique_ptr<IValue> value) override
     {
         // Delegate to the underlying database.
-        db->updateRecord(id, value);
+        db->updateRecord(id, std::move(value));
         // No TTL provided, so no action needed.
     }
 
     // Update a record and optionally update its TTL.
-    void updateRecord(const std::string &id, std::any &value, int ttlSeconds) override
+    void updateRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds) override
     {
-        db->updateRecord(id, value);
+        db->updateRecord(id, std::move(value));
         if (ttlSeconds > 0)
         {
             auto record = db->getRecord(id);

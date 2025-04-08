@@ -1,34 +1,34 @@
-#ifndef DELCOMMAND_H
-#define DELCOMMAND_H
+#ifndef PERSISTCOMMAND_H
+#define PERSISTCOMMAND_H
 
-#include "../../IDatabase.h"
-#include "../ICommand.h"
+#include "../../../IDatabase.h"
 #include <string>
+#include "../../ICommand.h"
 #include <sstream>
 #include <vector>
 #include <iostream>
-#include <any>
 
-class DELCommand : public ICommand
+class PERSISTCommand : public ICommand
 {
 public:
     std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
     {
-        if (tokens.size() < 2)
+        if (tokens.size() != 2)
         {
-            return "ERR wrong usage of DEL command, expected DEL <key>\n";
+            return "ERR wrong usage of PERSIST command, expected PERSIST <key>\n";
         }
+
         std::string key = tokens[1];
         try
         {
-            db->deleteRecord(key);
+            db->removeTTL(key);
+            return "OK\n";
         }
         catch (const std::exception &e)
         {
             return "ERR " + std::string(e.what()) + "\n";
         }
-        return "OK\n";
     }
 };
 
-#endif // DELCOMMAND_H
+#endif // PERSISTCOMMAND_H

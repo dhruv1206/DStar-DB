@@ -1,0 +1,8 @@
+build_and_run.sh
+build.sh
+run.sh
+*.db
+*.db*
+dstar_persisted_storage.db
+dstardb.exe
+.idea/vcs.xml

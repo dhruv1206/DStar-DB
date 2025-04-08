@@ -8,6 +8,7 @@
 #include <shared_mutex>
 #include <mutex>
 #include <atomic>
+#include "IValue.h"
 
 class Record
 {
@@ -19,39 +20,22 @@ public:
     const std::string &getId() const;
 
     // Set a field with any type of value.
-    template <typename T>
-    void setField(const std::string fieldName, T value)
+    void setValue(std::unique_ptr<IValue> val)
     {
-        std::unique_lock lock(record_mutex);
-        fields[fieldName] = std::any(value);
-        // For simplicity, update frequency on modification.
+        std::unique_lock<std::shared_mutex> lock(record_mutex);
+        value = std::move(val);
         frequency++;
     }
 
-    // Get a field value by name. Throws if field not found or wrong type.
-    template <typename T>
-    T getField(const std::string fieldName) const
+    // Get the stored value.
+    IValue *getValue() const
     {
-        std::shared_lock lock(record_mutex);
-        auto it = fields.find(fieldName);
-        if (it != fields.end())
-        {
-            try
-            {
-                // Increment frequency on access.
-                frequency++;
-                return std::any_cast<T>(it->second);
-            }
-            catch (const std::bad_any_cast &e)
-            {
-                throw std::runtime_error("Bad any_cast for field: " + fieldName);
-            }
-        }
-        throw std::runtime_error("Field not found: " + fieldName);
+        std::shared_lock<std::shared_mutex> lock(record_mutex);
+        frequency++;
+        if (!value)
+            throw std::runtime_error("Value not set for this record.");
+        return value.get();
     }
-
-    // Remove a field by name.
-    void removeField(const std::string fieldName);
 
     // Increase access frequency.
     void incrementFrequency();
@@ -95,7 +79,7 @@ public:
 
 private:
     std::string id;
-    std::unordered_map<std::string, std::any> fields;
+    std::unique_ptr<IValue> value;
     mutable std::shared_mutex record_mutex;
     mutable std::atomic<size_t> frequency{0};
     std::chrono::steady_clock::time_point expirationTime;

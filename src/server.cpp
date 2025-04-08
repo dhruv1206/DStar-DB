@@ -19,7 +19,6 @@
 #include <thread>
 #include <atomic>
 #include <vector>
-#include <mutex>
 #include "../include/Database/Database.h"
 #include "../include/Database/IDatabase.h"
 #include "../include/Database/Commands/CommandRegistry.h"
@@ -29,7 +28,6 @@
 #include "../include/Constants.h"
 #include "../include/Database/Persistence/IPersistenceManager.h"
 #include "../include/Database/Persistence/PersistenceFactory.h"
-#include "../include/Database/Observer/IDatabaseObserver.h"
 #include "../include/Database/Decorators/TTLDatabaseDecorator.h"
 
 std::atomic<bool> running(true);

@@ -66,7 +66,7 @@ public:
             aofStream.flush();
         }
     }
-    void onDatabaseModified(const std::string &operation, const std::string &recordId, const std::any &value) override
+    void onDatabaseModified(const std::string &operation, const std::string &recordId, std::shared_ptr<IValue> value) override
     {
         std::lock_guard<std::mutex> lock(writeMutex);
         if (aofStream.is_open())
