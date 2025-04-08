@@ -19,11 +19,6 @@ public:
     static const std::string SET;
 };
 
-// Outside the class definition
-const std::string ValueType::STRING = "string";
-const std::string ValueType::LIST = "list";
-const std::string ValueType::SET = "set";
-
 class ValueFactory
 {
 public:

@@ -22,15 +22,7 @@ public:
         std::string key = tokens[1];
         std::string valueStr = command.substr(command.find(key) + key.length() + 1);
         auto value = ValueFactory::createValue(ValueType::STRING, valueStr);
-        try
-        {
-            db->insertRecord(key, std::move(value));
-        }
-        catch (const std::exception &e)
-        {
-            db->updateRecord(key, std::move(value));
-        }
-
+        db->updateRecord(key, std::move(value));
         return "OK\n";
     }
 };

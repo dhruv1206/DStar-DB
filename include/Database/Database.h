@@ -53,7 +53,7 @@ public:
         }
         else
         {
-            throw std::runtime_error("Record with id '" + id + "' not found.");
+            insertRecord(id, std::move(value)); // If not found, insert as a new record.
         }
     }
 
