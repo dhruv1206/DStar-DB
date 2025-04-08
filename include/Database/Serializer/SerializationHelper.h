@@ -14,6 +14,9 @@ public:
     // Helper function to append a std::string to the buffer.
     static void appendToBuffer(std::vector<uint8_t> &buffer, IValue *value)
     {
+        if (value == nullptr){
+            throw std::invalid_argument("Value cannot be null"); // Check for null pointer
+        }
         std::vector<uint8_t> serializedValue = value->serialize();
         std::string type = value->getType();
         size_t typeLen = type.size();
