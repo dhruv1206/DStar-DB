@@ -1,24 +1,34 @@
-#ifndef STRING_VALUE_H
-#define STRING_VALUE_H
+#ifndef HASHVALUE_H
+#define HASHVALUE_H
 
 #include "../IValue.h"
 #include "../Serializer/ValueSerializationHelper.h"
-#include <string>
+#include <unordered_map>
 
-class StringValue : public IValue
+class HashValue : public IValue
 {
 public:
-    explicit StringValue(const std::string &val) : value(val) {}
-    StringValue() : value("") {}
+    explicit HashValue(const std::unordered_map<std::string, std::string> &val) : value(val) {}
+    HashValue() {}
 
     std::string getType() const override
     {
-        return "string";
+        return "hash";
     }
 
     std::string toString() const override
     {
-        return value;
+        std::string result = "{";
+        bool first = true;
+        for (const auto &p : value)
+        {
+            if (!first)
+                result += ", ";
+            result += "\"" + p.first + "\": \"" + p.second + "\"";
+            first = false;
+        }
+        result += "}";
+        return result;
     }
 
     const std::any &get() const override
@@ -44,7 +54,7 @@ public:
     }
 
 private:
-    std::string value;
+    std::unordered_map<std::string, std::string> value;
 };
 
-#endif // STRING_VALUE_H
+#endif // HASHVALUE_H
