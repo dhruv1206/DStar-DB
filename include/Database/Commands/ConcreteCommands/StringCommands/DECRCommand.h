@@ -30,15 +30,24 @@ public:
         {
             return "ERR value is not an integer\n";
         }
-        try{
+        try
+        {
             int currentValue = std::stoi(std::any_cast<std::string>(value->getValue()->get()));
             currentValue--;
-            auto newValue = ValueFactory::createValue(ValueType::STRING, std::to_string(currentValue));            
+            auto newValue = ValueFactory::createValue(ValueType::STRING, std::to_string(currentValue));
             db->updateRecord(key, std::move(newValue));
         }
         catch (const std::invalid_argument &e)
         {
             return "ERR value is not an integer\n";
+        }
+        catch (const std::out_of_range &e)
+        {
+            return "ERR value is out of range\n";
+        }
+        catch (const std::exception &e)
+        {
+            return "ERR " + std::string(e.what()) + "\n";
         }
 
         return "OK\n";
