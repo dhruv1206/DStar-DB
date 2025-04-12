@@ -20,7 +20,7 @@ public:
 
     // Returns the value as a std::any object.
     virtual const std::any &get() const = 0;
-
+  
     // Serialize the value into a binary buffer.
     virtual std::vector<uint8_t> serialize() const
     {

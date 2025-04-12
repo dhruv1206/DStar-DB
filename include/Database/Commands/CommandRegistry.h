@@ -12,6 +12,11 @@
 #include "ConcreteCommands/KeyCommands/EXISTSCommand.h"
 #include "ConcreteCommands/KeyCommands/DELCommand.h"
 #include "ConcreteCommands/KeyCommands/PERSISTCommand.h"
+#include "ConcreteCommands/StringCommands/INCRCommand.h"
+#include "ConcreteCommands/StringCommands/INCRBYCommand.h"
+#include "ConcreteCommands/StringCommands/DECRCommand.h"
+#include "ConcreteCommands/StringCommands/DECRBYCommand.h"
+#include "ConcreteCommands/KeyCommands/TYPECommand.h"
 
 class CommandRegistry
 {
@@ -27,6 +32,11 @@ public:
         commands["EXISTS"] = std::make_unique<EXISTSCommand>();
         commands["DEL"] = std::make_unique<DELCommand>();
         commands["PERSIST"] = std::make_unique<PERSISTCommand>();
+        commands["INCR"] = std::make_unique<INCRCommand>();
+        commands["INCRBY"] = std::make_unique<INCRBYCommand>();
+        commands["DECR"] = std::make_unique<DECRCommand>();
+        commands["DECRBY"] = std::make_unique<DECRBYCommand>();
+        commands["TYPE"] = std::make_unique<TYPECommand>();
     }
 
     ICommand *getCommand(const std::string &commandName)
