@@ -1,6 +1,7 @@
 #ifndef IVALUE_H
 #define IVALUE_H
 
+#include <any>
 #include <string>
 #include <memory>
 #include <cstdint>
@@ -11,10 +12,15 @@ class IValue
 {
 public:
     virtual ~IValue() = default;
+
     // Returns a string identifying the type (e.g., "string", "list", "set", etc.)
     virtual std::string getType() const = 0;
     // Returns a string representation of the value.
     virtual std::string toString() const = 0;
+
+    // Returns the value as a std::any object.
+    virtual const std::any get() const = 0;
+
     // Serialize the value into a binary buffer.
     virtual std::vector<uint8_t> serialize() const
     {

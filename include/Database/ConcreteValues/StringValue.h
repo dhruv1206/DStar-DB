@@ -21,7 +21,7 @@ public:
         return value;
     }
 
-    const std::string &get() const
+    const std::any get() const override
     {
         return value;
     }
