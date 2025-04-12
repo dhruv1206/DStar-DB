@@ -24,7 +24,7 @@ public:
             auto record = db->getRecord(key);
             if (!record)
             {
-                return "ERR no such key\n"; // Return an error message if the key does not exist.
+                return "ERR key does not exist\n"; // Return an error message if the key does not exist.
             }
             return record->getValue()->getType() + "\n"; // Return the type of the record.
         }
