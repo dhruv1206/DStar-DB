@@ -29,6 +29,16 @@
 #include "ConcreteCommands/ListCommands/RPOPCommand.h"
 #include "ConcreteCommands/ListCommands/LINDEXCommand.h"
 #include "ConcreteCommands/ListCommands/LLENCommand.h"
+#include "ConcreteCommands/SetCommands/SADDCommand.h"
+#include "ConcreteCommands/SetCommands/SREMCommand.h"
+#include "ConcreteCommands/SetCommands/SMEMBERSCommand.h"
+#include "ConcreteCommands/SetCommands/SISMEMBERCommand.h"
+#include "ConcreteCommands/SetCommands/SCARDCommand.h"
+#include "ConcreteCommands/SortedSetCommands/ZADDCommand.h"
+#include "ConcreteCommands/SortedSetCommands/ZREMCommand.h"
+#include "ConcreteCommands/SortedSetCommands/ZCARDCommand.h"
+#include "ConcreteCommands/SortedSetCommands/ZISMEMBERCommand.h"
+#include "ConcreteCommands/SortedSetCommands/ZMEMBERSCommand.h"
 
 class CommandRegistry
 {
@@ -61,6 +71,16 @@ public:
         commands["RPOP"] = std::make_unique<RPOPCommand>();
         commands["LLEN"] = std::make_unique<LLENCommand>();
         commands["LINDEX"] = std::make_unique<LINDEXCommand>();
+        commands["SADD"] = std::make_unique<SADDCommand>();
+        commands["SREM"] = std::make_unique<SREMCommand>();
+        commands["SMEMBERS"] = std::make_unique<SMEMBERSCommand>();
+        commands["SISMEMBER"] = std::make_unique<SISMEMBERCommand>();
+        commands["SCARD"] = std::make_unique<SCARDCommand>();
+        commands["ZADD"] = std::make_unique<ZADDCommand>();
+        commands["ZREM"] = std::make_unique<ZREMCommand>();
+        commands["ZCARD"] = std::make_unique<ZCARDCommand>();
+        commands["ZISMEMBER"] = std::make_unique<ZISMEMBERCommand>();
+        commands["ZMEMBERS"] = std::make_unique<ZMEMBERSCommand>();
     }
 
     ICommand *getCommand(const std::string &commandName)
