@@ -23,7 +23,15 @@ public:
             if (record)
             {
                 const std::string field = tokens[2];
-                return dynamic_cast<HashValue *>(record->getValue())->get(field) + "\n";
+                auto hashValue = dynamic_cast<HashValue *>(record->getValue());
+                if (hashValue)
+                {
+                    return hashValue->get(field) + "\n";
+                }
+                else
+                {
+                    return "ERR value is not a hash\n";
+                }
             }
             else
             {

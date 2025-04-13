@@ -39,7 +39,16 @@ public:
             {
                 for (size_t i = 2; i < tokens.size(); i++)
                 {
-                    dynamic_cast<HashValue *>(record->getValue())->deleteField(tokens[i]);
+                    auto hashValue = dynamic_cast<HashValue *>(record->getValue());
+                    if (hashValue)
+                    {
+                        hashValue->deleteField(tokens[i]);
+                    }
+                    else
+                    {
+                        return "ERR wrong type of value\n";
+                    }
+                    return "OK\n";
                 }
             }
         }

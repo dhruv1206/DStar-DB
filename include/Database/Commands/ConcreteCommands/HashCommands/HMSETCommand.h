@@ -42,7 +42,12 @@ public:
                 {
                     std::string field = tokens[i];
                     std::string valueStr = tokens[i + 1];
-                    dynamic_cast<HashValue *>(hashValue.get())->set(field, valueStr);
+                    auto hashValuePtr = dynamic_cast<HashValue *>(hashValue.get());
+                    if (!hashValuePtr)
+                    {
+                        return "ERR wrong type of value\n";
+                    }
+                    hashValuePtr->set(field, valueStr);
                 }
                 db->insertRecord(key, std::move(hashValue));
             }

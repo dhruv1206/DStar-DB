@@ -51,7 +51,7 @@ public:
         }
     }
 
-    bool exist(const std::string &key)
+    bool exists(const std::string &key)
     {
         return value.find(key) != value.end();
     }
