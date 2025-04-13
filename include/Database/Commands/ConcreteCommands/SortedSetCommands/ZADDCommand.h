@@ -5,7 +5,6 @@
 #include "../../../ISortedSetValue.h"
 #include "../../../ValueFactory.h"
 #include <set>
-#include <unordered_set>
 
 class ZADDCommand : public ICommand
 {

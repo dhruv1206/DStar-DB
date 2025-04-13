@@ -34,6 +34,7 @@ public:
         {
             return "ERR " + key + " does not exist\n";
         }
+    }
 };
 
 #endif // SREM_COMMAND_H

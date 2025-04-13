@@ -39,6 +39,8 @@
 #include "ConcreteCommands/SortedSetCommands/ZCARDCommand.h"
 #include "ConcreteCommands/SortedSetCommands/ZISMEMBERCommand.h"
 #include "ConcreteCommands/SortedSetCommands/ZMEMBERSCommand.h"
+#include "ConcreteCommands/HyperLogLogCommands/PFADDCommand.h"
+#include "ConcreteCommands/HyperLogLogCommands/PFCOUNTCommand.h"
 
 class CommandRegistry
 {
@@ -81,6 +83,8 @@ public:
         commands["ZCARD"] = std::make_unique<ZCARDCommand>();
         commands["ZISMEMBER"] = std::make_unique<ZISMEMBERCommand>();
         commands["ZMEMBERS"] = std::make_unique<ZMEMBERSCommand>();
+        commands["PFADD"] = std::make_unique<PFADDCommand>();
+        commands["PFCOUNT"] = std::make_unique<PFCOUNTCommand>();
     }
 
     ICommand *getCommand(const std::string &commandName)

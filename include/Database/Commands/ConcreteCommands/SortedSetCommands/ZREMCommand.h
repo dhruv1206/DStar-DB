@@ -34,6 +34,7 @@ public:
         {
             return "ERR " + key + " does not exist\n";
         }
+    }
 };
 
 #endif // ZREM_COMMAND_H

@@ -7,7 +7,6 @@
 #include <iostream>
 #include <mutex>
 #include <string>
-#include <any>
 
 class AOFPersistence : public IPersistenceManager, public IDatabaseObserver
 {

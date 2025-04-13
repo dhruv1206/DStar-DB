@@ -4,6 +4,7 @@
 #include "../include/Database/ConcreteValues/ListValue.h"
 #include "../include/Database/ConcreteValues/SetValue.h"
 #include "../include/Database/ConcreteValues/SortedSetValue.h"
+#include "../include/Database/ConcreteValues/HyperLogLogValue.h"
 #include <unordered_set>
 
 const std::string ValueType::STRING = "string";
@@ -11,6 +12,7 @@ const std::string ValueType::HASH = "hash";
 const std::string ValueType::LIST = "list";
 const std::string ValueType::SET = "set";
 const std::string ValueType::SORTED_SET = "sorted_set";
+const std::string ValueType::HYPER_LOG_LOG = "hyperloglog";
 
 std::unique_ptr<IValue> ValueFactory::createValue(const std::string &type, const std::vector<uint8_t> &data)
 {
@@ -42,6 +44,12 @@ std::unique_ptr<IValue> ValueFactory::createValue(const std::string &type, const
     else if (type == ValueType::SORTED_SET)
     {
         val = std::make_unique<SortedSetValue>();
+        val->deserialize(data);
+        return val;
+    }
+    else if (type == ValueType::HYPER_LOG_LOG)
+    {
+        val = std::make_unique<HyperLogLogValue>();
         val->deserialize(data);
         return val;
     }
@@ -94,6 +102,10 @@ std::unique_ptr<IValue> ValueFactory::createValue(const std::string &type, const
             throw std::invalid_argument("Expected a sorted set for SORTED_SET type, but got a different type.");
         }
         return std::make_unique<SortedSetValue>(std::any_cast<std::set<std::string>>(rawValue));
+    }
+    else if (type == ValueType::HYPER_LOG_LOG)
+    {
+        return std::make_unique<HyperLogLogValue>();
     }
     // TODO: Handle other types like LIST and SET when implemented.
     else

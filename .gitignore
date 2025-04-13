@@ -11,3 +11,6 @@ dstardb.exe
 *.pyo
 *.pyd
 build
+.idea
+.vscode
+cmake-build-debug

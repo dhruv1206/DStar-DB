@@ -1,14 +1,18 @@
-cmake_minimum_required(VERSION 3.16)
-
-project(DStarDB)
+cmake_minimum_required(VERSION 3.15)
+project(dstardb)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Include your source files
-file(GLOB SOURCES "src/*.cpp")
+# Include directories
+include_directories(include headers)
 
-# Add the executable
+# Source files
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+
+# Executable
 add_executable(dstardb ${SOURCES})
 
-# Link with the ws2_32 library (Windows-specific)
-target_link_libraries(dstardb PRIVATE ws2_32)
+# Windows-specific libraries
+if (WIN32)
+    target_link_libraries(dstardb ws2_32)
+endif()
