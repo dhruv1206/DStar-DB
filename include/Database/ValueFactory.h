@@ -2,9 +2,9 @@
 #define VALUE_FACTORY_H
 
 #include "IValue.h"
-#include "ConcreteValues/StringValue.h"
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <memory>
 #include <cstdint>
@@ -15,6 +15,7 @@ class ValueType
 {
 public:
     static const std::string STRING;
+    static const std::string HASH;
     static const std::string LIST;
     static const std::string SET;
 };
@@ -23,34 +24,10 @@ class ValueFactory
 {
 public:
     // Create an IValue instance from a type string and a binary buffer.
-    static std::unique_ptr<IValue> createValue(const std::string& type, const std::vector<uint8_t> &data)
-    {
-        if (type == ValueType::STRING)
-        {
-            std::unique_ptr<IValue> val = std::make_unique<StringValue>();
-            val->deserialize(data);
-            return val;
-        }
-        // TODO: Handle other types like LIST and SET when implemented.
-        else
-        {
-            throw std::invalid_argument("Unknown value type: " + type);
-        }
-    }
+    static std::unique_ptr<IValue> createValue(const std::string &type, const std::vector<uint8_t> &data);
 
     // Alternatively, create a value from a raw string. This is useful when commands insert new values.
-    static std::unique_ptr<IValue> createValue(const std::string& type, const std::string &rawValue)
-    {
-        if (type == ValueType::STRING)
-        {
-            return std::make_unique<StringValue>(rawValue);
-        }
-        // TODO: Handle other types like LIST and SET when implemented.
-        else
-        {
-            throw std::invalid_argument("Unknown value type: " + type);
-        }
-    }
+    static std::unique_ptr<IValue> createValue(const std::string &type, const std::any &rawValue);
 };
 
 #endif // VALUE_FACTORY_H

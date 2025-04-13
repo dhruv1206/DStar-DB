@@ -6,3 +6,8 @@ run.sh
 dstar_persisted_storage.db
 dstardb.exe
 .idea/vcs.xml
+.cache
+*.pyc
+*.pyo
+*.pyd
+build
