@@ -86,7 +86,7 @@ public:
         size_t offset = 0;
         if (!ValueSerializationHelper::readFromBuffer(data, offset, value))
         {
-            throw std::runtime_error("Failed to deserialize StringValue");
+            throw std::runtime_error("Failed to deserialize HashValue");
         }
     }
 
