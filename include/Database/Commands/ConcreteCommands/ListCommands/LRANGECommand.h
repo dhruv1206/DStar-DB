@@ -36,13 +36,13 @@ public:
             std::vector<std::string> range = listValue->range(start, stop);
             std::ostringstream oss;
             oss << "[";
-            for (const auto &elem : range)
+            for (size_t i = 0; i < range.size(); ++i)
             {
-                oss << elem << ", ";
-            }
-            if (!range.empty())
-            {
-                oss.seekp(-2, std::ios_base::end); // Remove the last comma and space
+                oss << range[i];
+                if (i < range.size() - 1)
+                {
+                    oss << ", ";
+                }
             }
             oss << "]\n";
             return oss.str();
