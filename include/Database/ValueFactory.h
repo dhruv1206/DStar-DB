@@ -2,13 +2,10 @@
 #define VALUE_FACTORY_H
 
 #include "IValue.h"
-#include <iostream>
 #include <string>
-#include <unordered_map>
 #include <vector>
 #include <memory>
 #include <cstdint>
-#include <stdexcept>
 // Include other value type headers when implemented.
 
 class ValueType
@@ -18,6 +15,7 @@ public:
     static const std::string HASH;
     static const std::string LIST;
     static const std::string SET;
+    static const std::string SORTED_SET;
 };
 
 class ValueFactory
