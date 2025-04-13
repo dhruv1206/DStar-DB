@@ -30,8 +30,6 @@ public:
         {
             return "ERR " + key + " does not exist\n";
         }
-        return "OK\n";
-    }
 };
 
 #endif // ZCARD_COMMAND_H
