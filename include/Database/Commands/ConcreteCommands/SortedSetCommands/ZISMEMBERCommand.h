@@ -37,8 +37,6 @@ public:
         {
             return "ERR " + key + " does not exist\n";
         }
-        return "OK\n";
-    }
 };
 
 #endif // ZISMEMBER_COMMAND_H
