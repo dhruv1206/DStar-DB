@@ -29,6 +29,7 @@ public:
         {
             return "ERR " + key + " does not exist\n";
         }
+    }
 };
 
 #endif // ZMEMBERS_COMMAND_H
