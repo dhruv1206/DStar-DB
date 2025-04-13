@@ -32,7 +32,7 @@ void ValueSerializationHelper::appendToBuffer(std::vector<uint8_t> &buffer, cons
     }
 }
 
-// Helper function to append a hash value (vector) to the buffer
+// Helper function to append a list value (vector) to the buffer
 void ValueSerializationHelper::appendToBuffer(std::vector<uint8_t> &buffer, const std::vector<std::string> &hash)
 {
     size_t hashSize = hash.size();

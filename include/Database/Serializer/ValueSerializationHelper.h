@@ -22,7 +22,7 @@ public:
     // Helper function to append a hash value (unordered_map) to the buffer.
     static void appendToBuffer(std::vector<uint8_t> &buffer, const std::unordered_map<std::string, std::string> &hash);
 
-    // Helper function to append a hash value (vector) to the buffer.
+    // Helper function to append a list value (vector) to the buffer.
     static void appendToBuffer(std::vector<uint8_t> &buffer, const std::vector<std::string> &hash);
 
     // Helper to read a size_t value from the buffer.
