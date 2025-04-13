@@ -4,7 +4,6 @@
 #include "../IListValue.h"
 #include "../Serializer/ValueSerializationHelper.h"
 #include <vector>
-#include <bits/algorithmfwd.h>
 
 class ListValue : public IListValue
 {
