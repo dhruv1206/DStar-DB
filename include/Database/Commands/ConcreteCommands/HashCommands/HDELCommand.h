@@ -48,8 +48,8 @@ public:
                     {
                         return "ERR wrong type of value\n";
                     }
-                    return "OK\n";
                 }
+                return "OK\n";
             }
         }
         catch (const std::bad_any_cast &e)
