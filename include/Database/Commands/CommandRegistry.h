@@ -22,6 +22,13 @@
 #include "ConcreteCommands/HashCommands/HMSETCommand.h"
 #include "ConcreteCommands/HashCommands/HDELCommand.h"
 #include "ConcreteCommands/HashCommands/HEXISTSCommand.h"
+#include "ConcreteCommands/ListCommands/LPUSHCommand.h"
+#include "ConcreteCommands/ListCommands/RPUSHCommand.h"
+#include "ConcreteCommands/ListCommands/LRANGECommand.h"
+#include "ConcreteCommands/ListCommands/LPOPCommand.h"
+#include "ConcreteCommands/ListCommands/RPOPCommand.h"
+#include "ConcreteCommands/ListCommands/LINDEXCommand.h"
+#include "ConcreteCommands/ListCommands/LLENCommand.h"
 
 class CommandRegistry
 {
@@ -47,6 +54,13 @@ public:
         commands["HMSET"] = std::make_unique<HMSETCommand>();
         commands["HDEL"] = std::make_unique<HDELCommand>();
         commands["HEXISTS"] = std::make_unique<HEXISTSCommand>();
+        commands["LPUSH"] = std::make_unique<LPUSHCommand>();
+        commands["RPUSH"] = std::make_unique<RPUSHCommand>();
+        commands["LRANGE"] = std::make_unique<LRANGECommand>();
+        commands["LPOP"] = std::make_unique<LPOPCommand>();
+        commands["RPOP"] = std::make_unique<RPOPCommand>();
+        commands["LLEN"] = std::make_unique<LLENCommand>();
+        commands["LINDEX"] = std::make_unique<LINDEXCommand>();
     }
 
     ICommand *getCommand(const std::string &commandName)

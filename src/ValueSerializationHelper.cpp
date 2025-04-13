@@ -32,6 +32,17 @@ void ValueSerializationHelper::appendToBuffer(std::vector<uint8_t> &buffer, cons
     }
 }
 
+// Helper function to append a hash vale (vector) to the buffer
+void ValueSerializationHelper::appendToBuffer(std::vector<uint8_t> &buffer, const std::vector<std::string> &hash)
+{
+    size_t hashSize = hash.size();
+    appendToBuffer(buffer, hashSize);
+    for (const auto &pair : hash)
+    {
+        appendToBuffer(buffer, pair);
+    }
+}
+
 // Helper to read a size_t value from the buffer.
 bool ValueSerializationHelper::readFromBuffer(const std::vector<uint8_t> &buffer, size_t &offset, size_t &val)
 {
@@ -67,6 +78,22 @@ bool ValueSerializationHelper::readFromBuffer(const std::vector<uint8_t> &buffer
         if (!readFromBuffer(buffer, offset, key) || !readFromBuffer(buffer, offset, value))
             return false;
         hash[key] = value;
+    }
+    return true;
+}
+
+// Helper to read a hash value (vector) from the buffer.
+bool ValueSerializationHelper::readFromBuffer(const std::vector<uint8_t> &buffer, size_t &offset, std::vector<std::string> &hash)
+{
+    size_t hashSize = 0;
+    if (!readFromBuffer(buffer, offset, hashSize))
+        return false;
+    for (size_t i = 0; i < hashSize; ++i)
+    {
+        std::string value;
+        if (!readFromBuffer(buffer, offset, value))
+            return false;
+        hash.push_back(value);
     }
     return true;
 }
