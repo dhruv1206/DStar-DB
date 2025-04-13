@@ -37,7 +37,7 @@ public:
 
             if (!record)
             {
-                std::unique_ptr<IValue> hashValue = ValueFactory::createValue(ValueType::HASH);
+                std::unique_ptr<IValue> hashValue = ValueFactory::createValue(ValueType::HASH, std::unordered_map<std::string, std::string>());
                 for (size_t i = 2; i < tokens.size(); i += 2)
                 {
                     std::string field = tokens[i];
