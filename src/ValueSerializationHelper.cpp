@@ -37,7 +37,7 @@ bool ValueSerializationHelper::readFromBuffer(const std::vector<uint8_t> &buffer
 {
     if (offset + sizeof(size_t) > buffer.size())
         return false;
-    val = *reinterpret_cast<const size_t *>(&buffer[offset]);
+    memcpy(&val, &buffer[offset], sizeof(size_t));
     offset += sizeof(size_t);
     return true;
 }
