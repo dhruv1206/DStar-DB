@@ -22,6 +22,9 @@ public:
     // Helper function to append a hash value (unordered_map) to the buffer.
     static void appendToBuffer(std::vector<uint8_t> &buffer, const std::unordered_map<std::string, std::string> &hash);
 
+    // Helper function to append a list value (vector) to the buffer.
+    static void appendToBuffer(std::vector<uint8_t> &buffer, const std::vector<std::string> &hash);
+
     // Helper to read a size_t value from the buffer.
     static bool readFromBuffer(const std::vector<uint8_t> &buffer, size_t &offset, size_t &val);
 
@@ -29,7 +32,10 @@ public:
     static bool readFromBuffer(const std::vector<uint8_t> &buffer, size_t &offset, std::string &str);
 
     // Helper to read a hash value (unordered_map) from the buffer.
-    static bool readFromBuffer(const std::vector<uint8_t> &buffer, size_t &offset, std::unordered_map<std::string,std::string> &hash);
+    static bool readFromBuffer(const std::vector<uint8_t> &buffer, size_t &offset, std::unordered_map<std::string, std::string> &hash);
+
+    // Helper to read a hash value (vector) from the buffer.
+    static bool readFromBuffer(const std::vector<uint8_t> &buffer, size_t &offset, std::vector<std::string> &hash);
 };
 
 #endif // VALUE_SERIALIZATION_HELPER_H
