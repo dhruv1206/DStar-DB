@@ -3,7 +3,6 @@
 
 #include <any>
 #include <string>
-#include <memory>
 #include <cstdint>
 #include <vector>
 #include <stdexcept>
@@ -19,8 +18,8 @@ public:
     virtual std::string toString() const = 0;
 
     // Returns the value as a std::any object.
-    virtual const std::any &get() const = 0;
-  
+    virtual std::any get() const = 0;
+
     // Serialize the value into a binary buffer.
     virtual std::vector<uint8_t> serialize() const
     {

@@ -21,7 +21,7 @@ public:
         return value;
     }
 
-    const std::any &get() const override
+    std::any get() const override
     {
         return value;
     }

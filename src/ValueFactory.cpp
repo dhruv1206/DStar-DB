@@ -30,15 +30,23 @@ std::unique_ptr<IValue> ValueFactory::createValue(const std::string &type, const
 }
 
 // Alternatively, create a value from a raw string. This is useful when commands insert new values.
-std::unique_ptr<IValue> ValueFactory::createValue(const std::string &type, const std::string &rawValue)
+std::unique_ptr<IValue> ValueFactory::createValue(const std::string &type, const std::any &rawValue)
 {
     if (type == ValueType::STRING)
     {
-        return std::make_unique<StringValue>(rawValue);
+        if (rawValue.type() != typeid(std::string))
+        {
+            throw std::invalid_argument("Expected a string for STRING type, but got a different type.");
+        }
+        return std::make_unique<StringValue>(std::any_cast<std::string>(rawValue));
     }
     else if (type == ValueType::HASH)
     {
-        return std::make_unique<HashValue>();
+        if (rawValue.type() != typeid(std::unordered_map<std::string, std::string>))
+        {
+            throw std::invalid_argument("Expected a map for HASH type, but got a different type.");
+        }
+        return std::make_unique<HashValue>(std::any_cast<std::unordered_map<std::string, std::string>>(rawValue));
     }
     // TODO: Handle other types like LIST and SET when implemented.
     else

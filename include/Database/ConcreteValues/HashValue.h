@@ -18,22 +18,59 @@ public:
 
     std::string toString() const override
     {
+        if (value.empty())
+            return "{}";
         std::string result = "{";
         bool first = true;
-        for (const auto &p : value)
+        for (const auto &pair : value)
         {
             if (!first)
                 result += ", ";
-            result += "\"" + p.first + "\": \"" + p.second + "\"";
+            result += "\"" + pair.first + "\": \"" + pair.second + "\"";
             first = false;
         }
         result += "}";
         return result;
     }
 
-    const std::any &get() const override
+    std::any get() const override
     {
         return value;
+    }
+
+    std::string get(const std::string &key) const
+    {
+        auto it = value.find(key);
+        if (it != value.end())
+        {
+            return it->second;
+        }
+        else
+        {
+            throw std::runtime_error("Field not found in hash value");
+        }
+    }
+
+    bool exist(const std::string &key)
+    {
+        return value.find(key) != value.end();
+    }
+
+    void set(const std::string &key, const std::string &val)
+    {
+        value[key] = val;
+    }
+
+    void deleteField(const std::string &key)
+    {
+        if (value.find(key) != value.end())
+        {
+            value.erase(key);
+        }
+        else
+        {
+            throw std::runtime_error("Field not found in hash value");
+        }
     }
 
     std::vector<uint8_t> serialize() const override

@@ -4,6 +4,7 @@
 #include "IValue.h"
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <memory>
 #include <cstdint>
@@ -26,7 +27,7 @@ public:
     static std::unique_ptr<IValue> createValue(const std::string &type, const std::vector<uint8_t> &data);
 
     // Alternatively, create a value from a raw string. This is useful when commands insert new values.
-    static std::unique_ptr<IValue> createValue(const std::string &type, const std::string &rawValue);
+    static std::unique_ptr<IValue> createValue(const std::string &type, const std::any &rawValue = std::unordered_map<std::string, std::string>());
 };
 
 #endif // VALUE_FACTORY_H
