@@ -38,8 +38,6 @@ public:
         {
             return "ERR " + key + " does not exist\n";
         }
-        return "OK\n";
-    }
 };
 
 #endif // SISMEMBER_COMMAND_H
