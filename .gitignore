@@ -14,4 +14,3 @@ build
 .idea
 .vscode
 cmake-build-debug
-headers
