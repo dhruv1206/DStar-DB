@@ -1,9 +1,9 @@
-
 #include "../include/Database/Serializer/ValueSerializationHelper.h"
 #include <unordered_map>
 #include <vector>
 #include <cstdint>
 #include <string>
+#include <cstring>
 
 // Helper function to append a size_t value to the buffer.
 void ValueSerializationHelper::appendToBuffer(std::vector<uint8_t> &buffer, size_t val)
