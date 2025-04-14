@@ -17,6 +17,7 @@ public:
     static const std::string SET;
     static const std::string SORTED_SET;
     static const std::string HYPER_LOG_LOG;
+    static const std::string STREAM;
 };
 
 class ValueFactory

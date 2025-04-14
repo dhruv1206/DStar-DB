@@ -5,6 +5,7 @@
 #include "../include/Database/ConcreteValues/SetValue.h"
 #include "../include/Database/ConcreteValues/SortedSetValue.h"
 #include "../include/Database/ConcreteValues/HyperLogLogValue.h"
+#include "../include/Database/ConcreteValues/StreamValue.h"
 #include <unordered_set>
 
 const std::string ValueType::STRING = "string";
@@ -13,6 +14,7 @@ const std::string ValueType::LIST = "list";
 const std::string ValueType::SET = "set";
 const std::string ValueType::SORTED_SET = "sorted_set";
 const std::string ValueType::HYPER_LOG_LOG = "hyperloglog";
+const std::string ValueType::STREAM = "stream";
 
 std::unique_ptr<IValue> ValueFactory::createValue(const std::string &type, const std::vector<uint8_t> &data)
 {
@@ -50,6 +52,12 @@ std::unique_ptr<IValue> ValueFactory::createValue(const std::string &type, const
     else if (type == ValueType::HYPER_LOG_LOG)
     {
         val = std::make_unique<HyperLogLogValue>();
+        val->deserialize(data);
+        return val;
+    }
+    else if (type == ValueType::STREAM)
+    {
+        val = std::make_unique<StreamValue>();
         val->deserialize(data);
         return val;
     }
@@ -106,6 +114,10 @@ std::unique_ptr<IValue> ValueFactory::createValue(const std::string &type, const
     else if (type == ValueType::HYPER_LOG_LOG)
     {
         return std::make_unique<HyperLogLogValue>();
+    }
+    else if (type == ValueType::STREAM)
+    {
+        return std::make_unique<StreamValue>();
     }
     // TODO: Handle other types like LIST and SET when implemented.
     else

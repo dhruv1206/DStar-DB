@@ -8,7 +8,6 @@
 #include "../MemoryManager/MemoryManager.h"
 #include "Observer/IDatabaseObserver.h"
 #include <vector>
-#include <any>
 #include "IValue.h"
 
 class IDatabase
