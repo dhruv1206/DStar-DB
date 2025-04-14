@@ -1,6 +1,7 @@
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
 
+#include <stdexcept>
 #include <thread>
 #include <vector>
 #include <functional>
@@ -55,7 +56,7 @@ public:
             }
             tasks.emplace(std::forward<F>(f));
         }
-        // Notify one worker that ther is a new task
+        // Notify one worker that there is a new task
         condition.notify_one();
     }
 

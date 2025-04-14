@@ -41,6 +41,9 @@
 #include "ConcreteCommands/SortedSetCommands/ZMEMBERSCommand.h"
 #include "ConcreteCommands/HyperLogLogCommands/PFADDCommand.h"
 #include "ConcreteCommands/HyperLogLogCommands/PFCOUNTCommand.h"
+#include "ConcreteCommands/StreamCommands/XADDCommand.h"
+#include "ConcreteCommands/StreamCommands/XREADCommand.h"
+#include "ConcreteCommands/StreamCommands/XRANGECommand.h"
 
 class CommandRegistry
 {
@@ -85,6 +88,9 @@ public:
         commands["ZMEMBERS"] = std::make_unique<ZMEMBERSCommand>();
         commands["PFADD"] = std::make_unique<PFADDCommand>();
         commands["PFCOUNT"] = std::make_unique<PFCOUNTCommand>();
+        commands["XADD"] = std::make_unique<XADDCommand>();
+        commands["XREAD"] = std::make_unique<XREADCommand>();
+        commands["XRANGE"] = std::make_unique<XRANGECommand>();
     }
 
     ICommand *getCommand(const std::string &commandName)
