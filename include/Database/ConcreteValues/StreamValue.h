@@ -4,10 +4,12 @@
 #include "../IStreamValue.h"
 #include "../Serializer/ValueSerializationHelper.h"
 #include "Stream/StreamMessage.h"
+#include "Stream/StreamConsumerGroup.h"
 #include <chrono>
 #include <map>
 #include <cstdint>
 #include <atomic>
+#include <memory>
 #include <string>
 
 class StreamValue : public IStreamValue
@@ -132,9 +134,44 @@ public:
         return result;
     }
 
+    void createConsumerGroup(const std::string &groupName, const StreamId &startId = {0, 0}) override
+    {
+        std::lock_guard<std::mutex> lock(cgMutex);
+        if (consumerGroups.find(groupName) != consumerGroups.end())
+            throw std::runtime_error("Consumer group already exists");
+        consumerGroups.emplace(groupName, std::make_unique<ConsumerGroup>(groupName, startId));
+    }
+
+    ConsumerGroup *getConsumerGroup(const std::string &groupName) override
+    {
+        std::lock_guard<std::mutex> lock(cgMutex);
+        auto it = consumerGroups.find(groupName);
+        if (it == consumerGroups.end())
+            throw std::runtime_error("Consumer group not found");
+        return it->second.get();
+    }
+
+    std::vector<StreamMessage> xreadGroup(const std::string &groupName, const std::string &consumerName, const StreamId &lastId, int count) override
+    {
+        ConsumerGroup *group = getConsumerGroup(groupName);
+        group->addConsumer(consumerName);
+        std::vector<StreamMessage> msgs = xread(lastId, count);
+        for (const auto &msg : msgs)
+        {
+            group->addPending(msg.id, consumerName);
+        }
+        if (!msgs.empty())
+        {
+            group->updateLastDeliveredId(msgs.back().id);
+        }
+        return msgs;
+    }
+
 private:
     // Use ordered map to maintain the order of insertion.
     std::map<StreamId, StreamMessage> messages;
+    std::unordered_map<std::string, std::unique_ptr<ConsumerGroup>> consumerGroups;
+    mutable std::mutex cgMutex;
 
     // Generate a new message ID.
     StreamId generateMessageId() const

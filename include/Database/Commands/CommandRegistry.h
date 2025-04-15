@@ -44,6 +44,10 @@
 #include "../Commands/ConcreteCommands/StreamCommands/XADDCommand.h"
 #include "../Commands/ConcreteCommands/StreamCommands/XREADCommand.h"
 #include "../Commands/ConcreteCommands/StreamCommands/XRANGECommand.h"
+#include "../Commands/ConcreteCommands/StreamCommands/XGROUPCommand.h"
+#include "../Commands/ConcreteCommands/StreamCommands/XPENDINGCommand.h"
+#include "../Commands/ConcreteCommands/StreamCommands/XACKCommand.h"
+#include "../Commands/ConcreteCommands/StreamCommands/XREADGROUPCommand.h"
 
 class CommandRegistry
 {
@@ -91,6 +95,10 @@ public:
         commands["XADD"] = std::make_unique<XADDCommand>();
         commands["XREAD"] = std::make_unique<XREADCommand>();
         commands["XRANGE"] = std::make_unique<XRANGECommand>();
+        commands["XGROUP"] = std::make_unique<XGROUPCommand>();
+        commands["XPENDING"] = std::make_unique<XPENDINGCommand>();
+        commands["XACK"] = std::make_unique<XACKCommand>();
+        commands["XREADGROUP"] = std::make_unique<XREADGROUPCommand>();
     }
 
     ICommand *getCommand(const std::string &commandName)
