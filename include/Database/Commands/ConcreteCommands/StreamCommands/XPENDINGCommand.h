@@ -33,8 +33,6 @@ public:
                 return "ERR internal type mismatch in XPENDING\n\r";
             }
             ConsumerGroup *group = streamVal->getConsumerGroup(groupName);
-            if (!group)
-                return "ERR consumer group not found\n\r";
             auto pending = group->getPending();
             std::ostringstream oss;
             oss << "Pending count: " << pending.size() << "\n\r";
