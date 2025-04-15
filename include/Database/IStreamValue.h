@@ -2,12 +2,13 @@
 #define ISTREAM_VALUE_H
 
 #include "IValue.h"
+#include "IConsumerGroup.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include "ConcreteValues/Stream/StreamMessage.h"
 
-class IStreamValue : public IValue
+class IStreamValue : public IValue, public IConsumerGroup
 {
 public:
     virtual ~IStreamValue() = default;
