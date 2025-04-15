@@ -1,5 +1,5 @@
-#ifndef ICONSUMER_GROUP__H
-#define ICONSUMER_GROUP__H
+#ifndef ICONSUMER_GROUP_H
+#define ICONSUMER_GROUP_H
 
 #include <string>
 #include "ConcreteValues/Stream/StreamMessage.h"
@@ -20,4 +20,4 @@ public:
     virtual std::vector<StreamMessage> xreadGroup(const std::string &groupName, const std::string &consumerName, const StreamId &lastId, int count) = 0;
 };
 
-#endif // ICONSUMER_GROUP__H
+#endif // ICONSUMER_GROUP_H
