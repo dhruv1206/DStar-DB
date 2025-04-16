@@ -78,7 +78,7 @@ public:
         buffer.append(data);
     }
 
-    const std::string &getBuffer()
+    std::string getBuffer()
     {
         std::lock_guard<std::mutex> lock(bufferMutex);
         return buffer;
@@ -105,7 +105,7 @@ public:
         commandHistoryIndex = index;
     }
 
-    const std::vector<std::string> &getCommandHistory() const
+    std::vector<std::string> getCommandHistory() const
     {
         std::lock_guard<std::mutex> lock(activityMutex);
         return commandHistory;
