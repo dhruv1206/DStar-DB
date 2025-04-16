@@ -13,22 +13,22 @@
 #include <arpa/inet.h>
 #endif
 
-#include <sstream>
 #include <iostream>
 #include <cstring>
 #include <thread>
 #include <atomic>
-#include <vector>
 #include "../include/Database/Database.h"
 #include "../include/Database/IDatabase.h"
 #include "../include/Database/Commands/CommandRegistry.h"
-#include "../include/Database/Commands/ICommand.h"
-#include "../include/ThreadPool.h"
 #include "../headers/cxxopts-master/include/cxxopts.hpp"
 #include "../include/Constants.h"
 #include "../include/Database/Persistence/IPersistenceManager.h"
 #include "../include/Database/Persistence/PersistenceFactory.h"
 #include "../include/Database/Decorators/TTLDatabaseDecorator.h"
+#include "../include/ClientManager/ClientManager.h"
+#include "../include/CommandProcessor/CommandProcessor.h"
+#include "../include/EventLoop.h"
+#include "../include/GlobalThreadPool.h"
 
 std::atomic<bool> running(true);
 
@@ -63,168 +63,12 @@ U| |_| |\u___) |   /| |\   / ___ \   |  _ <  U| |_| |\| |_) |
 
                 DStarDB Server Running @ 1206
     )" << std::endl;
-    std::cout << R"(                                          By Dhruv Agrawal)" << std::endl;;
+    std::cout << R"(                                          By Dhruv Agrawal)" << std::endl;
+    ;
 }
 
 std::unique_ptr<IDatabase> db;
 CommandRegistry *commandRegistry = new CommandRegistry();
-
-void processCommand(const std::string &command, std::string &response)
-{
-    std::istringstream iss(command);
-    std::vector<std::string> tokens;
-    std::string word;
-    while (iss >> word)
-    {
-        tokens.push_back(word);
-    }
-    if (tokens.empty())
-    {
-        return;
-    }
-    std::string cmdName = tokens[0];
-    ICommand *cmd = commandRegistry->getCommand(cmdName);
-    if (cmd != nullptr)
-    {
-        response = cmd->execute(tokens, command, db.get());
-    }
-    else
-    {
-        response = "ERR unknown command\n";
-    }
-}
-
-void handleClient(int client_fd)
-{
-    std::cout << "New client connected: " << client_fd << "\n";
-    const std::string prompt = "\033[32mDStarDB> \033[0m";
-    send(client_fd, prompt.c_str(), prompt.size(), 0);
-
-    std::string buffer = "";
-    char ch;
-    int recvResult;
-
-    std::vector<std::string> commandHistory;
-    int commandHistoryIndex = -1;
-
-    while (true)
-    {
-        recvResult = recv(client_fd, &ch, 1, 0);
-        if (recvResult <= 0)
-        {
-            std::cerr << "Client disconnected or error occurred\n";
-            break; // Client disconnected or error occurred
-        }
-        if (ch == 3)
-        { // Ctrl+C (ETX)
-            // send a goodbye message before closing.const
-            std::string goodbye = "Goodbye!\r\n";
-            send(client_fd, goodbye.c_str(), goodbye.size(), 0);
-            break; // Exit the loop, closing the connection.
-        }
-        // Check for backspace (ASCII 8 or 127)
-        if (ch == 8 || ch == 127)
-        {
-            if (!buffer.empty())
-            {
-                buffer.pop_back();
-                // Send backspace, space, then backspace again to erase on client's terminal
-                const char *bs = " \b";
-                send(client_fd, bs, 2, 0);
-            }
-            else
-            {
-                send(client_fd, " ", 1, 0);
-            }
-            // If buffer empty, ignore further backspaces.
-            continue;
-        }
-
-        // Check for escape sequence: Arrow keys send ESC (27) then '[' then final char.
-        if (ch == 27)
-        {
-            char seq[2];
-            int res = recv(client_fd, seq, 2, 0);
-            if (res == 2 && seq[0] == '[')
-            {
-                if (seq[1] == 'A') // UP arrow
-                {
-                    if (!commandHistory.empty() && commandHistoryIndex > 0)
-                    {
-                        commandHistoryIndex--;
-                        std::string clearLine = "\r" + std::string(prompt.size() + buffer.size(), ' ') + "\r";
-                        send(client_fd, clearLine.c_str(), clearLine.size(), 0);
-                        buffer = commandHistory[commandHistoryIndex];
-                        std::string cmdLine = prompt + buffer;
-                        send(client_fd, cmdLine.c_str(), cmdLine.size(), 0);
-                    }
-                }
-                else if (seq[1] == 'B') // DOWN arrow
-                {
-                    if (!commandHistory.empty() && commandHistoryIndex < static_cast<int>(commandHistory.size()) - 1)
-                    {
-                        commandHistoryIndex++;
-                        std::string clearLine = "\r" + std::string(prompt.size() + buffer.size(), ' ') + "\r";
-                        send(client_fd, clearLine.c_str(), clearLine.size(), 0);
-                        buffer = commandHistory[commandHistoryIndex];
-                        std::string cmdLine = prompt + buffer;
-                        send(client_fd, cmdLine.c_str(), cmdLine.size(), 0);
-                    }
-                    else if (!commandHistory.empty() && commandHistoryIndex == static_cast<int>(commandHistory.size()) - 1)
-                    {
-                        commandHistoryIndex++;
-                        std::string clearLine = "\r" + std::string(prompt.size() + buffer.size(), ' ') + "\r";
-                        send(client_fd, clearLine.c_str(), clearLine.size(), 0);
-                        buffer.clear(); // Clear the buffer for the next command
-                        std::string cmdLine = prompt;
-                        send(client_fd, cmdLine.c_str(), cmdLine.size(), 0);
-                    }
-                }
-            }
-            continue; // Ignore the rest of the escape sequence
-        }
-
-        // Ignore non-printable characters
-        if (!isalnum(ch) && !isprint(ch) && ch != '\n' && ch != '\r')
-            continue;
-        // If carriage return, ignore it (we handle newline)
-        if (ch == '\r')
-        {
-            continue;
-        }
-        if (ch == '\n')
-        {
-            // Send a newline to properly break the line.
-            const char *newline = "\n\r";
-            send(client_fd, newline, 2, 0);
-            // Process the accumulated command if any (trim trailing \r)
-            if (!buffer.empty() && buffer.back() == '\r')
-                buffer.pop_back();
-
-            if (!buffer.empty())
-            {
-                std::string response;
-                processCommand(buffer, response);
-                send(client_fd, response.c_str(), static_cast<int>(response.length()), 0);
-                send(client_fd, newline, 2, 0);
-                commandHistory.push_back(buffer);
-                commandHistoryIndex = commandHistory.size();
-            }
-            buffer.clear();                                    // Clear the buffer for the next command
-            send(client_fd, prompt.c_str(), prompt.size(), 0); // Send prompt again
-        }
-        else
-        {
-            buffer.push_back(ch);
-        }
-    }
-    std::cout << "Client disconnected: " << client_fd << "\n";
-#ifdef _WIN32
-    closesocket(client_fd);
-#else
-    close(client_fd);
-#endif
-}
 
 int main(int argc, char *argv[])
 {
@@ -322,33 +166,23 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        // Create a thread pool with a fixed number of threads.
-        const size_t numThreads = std::thread::hardware_concurrency();
-        ThreadPool pool(numThreads == 0 ? 4 : numThreads); // default to 4 if hardware_concurrency returns 0
+        ClientManager clientManager;
+        CommandProcessor commandProcessor(db.get(), commandRegistry);
+        // Create and start the event loop (reactor).
+        EventLoop eventLoop(server_fd, clientManager, commandProcessor);
+        GlobalThreadPool::getInstance().enqueue(
+            [&eventLoop]()
+            {
+                eventLoop.run();
+            });
 
-        // Main server loop using select() for a timeout.
+        // Main thread waits until shutdown is signaled.
         while (running)
         {
-            fd_set readfds;
-            FD_ZERO(&readfds);
-            FD_SET(server_fd, &readfds);
-
-            timeval tv;
-            tv.tv_sec = 1; // Timeout of 1 second.
-            tv.tv_usec = 0;
-
-            int ret = select(server_fd + 1, &readfds, nullptr, nullptr, &tv);
-            if (ret > 0 && FD_ISSET(server_fd, &readfds))
-            {
-                int client_fd = accept(server_fd, nullptr, nullptr);
-                if (client_fd >= 0)
-                {
-                    pool.enqueue([client_fd]
-                                 { handleClient(client_fd); });
-                }
-            }
-            // If ret == 0, it means timeout expired, and we loop again to check 'running'
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
+
+        eventLoop.stop();
 
         std::cout << "\nShutting down DStarDB->..\n";
 #ifdef _WIN32
