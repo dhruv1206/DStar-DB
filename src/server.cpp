@@ -64,7 +64,6 @@ U| |_| |\u___) |   /| |\   / ___ \   |  _ <  U| |_| |\| |_) |
                 DStarDB Server Running @ 1206
     )" << std::endl;
     std::cout << R"(                                          By Dhruv Agrawal)" << std::endl;
-    ;
 }
 
 std::unique_ptr<IDatabase> db;

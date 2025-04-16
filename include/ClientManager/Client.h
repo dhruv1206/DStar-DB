@@ -110,7 +110,7 @@ public:
         std::lock_guard<std::mutex> lock(activityMutex);
         return commandHistory;
     }
-    const int &getCommandHistoryIndex() const
+    int getCommandHistoryIndex() const
     {
         std::lock_guard<std::mutex> lock(activityMutex);
         return commandHistoryIndex;
