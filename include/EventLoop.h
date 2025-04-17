@@ -11,8 +11,6 @@
 #include "../include/ClientManager/ClientManager.h"
 #include "../include/CommandProcessor/CommandProcessor.h"
 #include "GlobalThreadPool.h"
-#include <chrono>
-#include <thread>
 #include <atomic>
 #include <iostream>
 #include <vector>
@@ -21,7 +19,7 @@ class EventLoop
 {
 public:
     // Constructor takes the listening socket and a reference to the client manager.
-    EventLoop(int listenSocket, ClientManager &clientMgr, CommandProcessor &cmdProc)
+    EventLoop(int listenSocket, ClientManager &clientMgr, std::shared_ptr<CommandProcessor> cmdProc)
         : listenSock(listenSocket), clientManager(clientMgr), commandProcessor(cmdProc), running(true) {}
 
     // Runs the main event loop.
@@ -98,13 +96,14 @@ public:
 private:
     int listenSock;
     ClientManager &clientManager;
-    CommandProcessor &commandProcessor;
+    std::shared_ptr<CommandProcessor> commandProcessor;
     std::atomic<bool> running;
-    const std::string prompt = "\033[32mDStarDB> \033[0m";
     const std::string welcomeMessage = "\033[32mWelcome to DStarDB!\033[0m\n\n\r";
+    const std::string prompt = "\033[32mDStarDB> \033[0m";
 
     void handleClient(Client *client)
     {
+        const char *localPrompt = "\033[32mDStarDB> \033[0m";
         int sock = client->getSocket();
         std::string data;
         // readData() reads data from the client.
@@ -206,8 +205,9 @@ private:
             }
             if (ch == '\n')
             {
+                std::shared_ptr<CommandProcessor> localCommandProcessor = commandProcessor;
                 GlobalThreadPool::getInstance().enqueue(
-                    [this, client]()
+                    [localPrompt, localCommandProcessor, client]()
                     {
                         // Send a newline to properly break the line.
                         const char *newline = "\n\r";
@@ -219,13 +219,13 @@ private:
                         if (!buffer.empty())
                         {
                             std::string response;
-                            this->commandProcessor.processCommand(buffer, response);
+                            localCommandProcessor->processCommand(buffer, response);
                             client->writeData(response);
                             client->writeData(newline, 2);
                             client->addCommandToHistory(buffer);
                         }
-                        client->clearBuffer();     // Clear the buffer for the next command
-                        client->writeData(prompt); // Send prompt again
+                        client->clearBuffer();          // Clear the buffer for the next command
+                        client->writeData(localPrompt); // Send prompt again
                     });
             }
             else

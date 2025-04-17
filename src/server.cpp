@@ -28,7 +28,6 @@
 #include "../include/ClientManager/ClientManager.h"
 #include "../include/CommandProcessor/CommandProcessor.h"
 #include "../include/EventLoop.h"
-#include "../include/GlobalThreadPool.h"
 
 std::atomic<bool> running(true);
 
@@ -67,7 +66,7 @@ U| |_| |\u___) |   /| |\   / ___ \   |  _ <  U| |_| |\| |_) |
 }
 
 std::unique_ptr<IDatabase> db;
-CommandRegistry *commandRegistry = new CommandRegistry();
+std::unique_ptr<CommandRegistry> commandRegistry = std::make_unique<CommandRegistry>();
 
 int main(int argc, char *argv[])
 {
@@ -166,14 +165,11 @@ int main(int argc, char *argv[])
         }
 
         ClientManager clientManager;
-        CommandProcessor commandProcessor(db.get(), commandRegistry);
+        std::shared_ptr<CommandProcessor> commandProcessor = std::make_shared<CommandProcessor>(db.get(), commandRegistry.get());
         // Create and start the event loop (reactor).
-        EventLoop eventLoop(server_fd, clientManager, commandProcessor);
-        GlobalThreadPool::getInstance().enqueue(
-            [&eventLoop]()
-            {
-                eventLoop.run();
-            });
+        auto eventLoop = std::make_shared<EventLoop>(server_fd, clientManager, commandProcessor);
+        std::thread eventLoopThread([eventLoop]()
+                                    { eventLoop->run(); });
 
         // Main thread waits until shutdown is signaled.
         while (running)
@@ -181,7 +177,9 @@ int main(int argc, char *argv[])
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
 
-        eventLoop.stop();
+        eventLoop->stop();
+        if (eventLoopThread.joinable())
+            eventLoopThread.join();
 
         std::cout << "\nShutting down DStarDB->..\n";
 #ifdef _WIN32
