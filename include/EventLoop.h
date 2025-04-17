@@ -117,7 +117,7 @@ private:
             char ch = data[0];
             if (ch == 3)
             {
-                // send a goodbye message before closing.const
+                // send a goodbye message before closing the connection
                 std::string goodbye = "Goodbye!\r\n";
                 client->writeData(goodbye);
                 std::cout << "Client disconnected: " << sock << "\n";
