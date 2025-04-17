@@ -52,8 +52,7 @@ public:
             int ret = select(maxfd + 1, &readfds, nullptr, nullptr, &tv);
             if (ret < 0)
             {
-                std::cerr << "Select error\n";
-                continue;
+                std::cerr << "Select error: " << strerror(errno) << "\n";
             }
 
             // 1. Check for new connections on the listening socket.
