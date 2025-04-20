@@ -39,7 +39,7 @@ public:
                 cmdName != Commands::MULTI &&
                 cmdName != Commands::WATCH)
             {
-                client->transactionContext->commands.push(std::bind(&ICommand::execute, cmd, tokens, command, db, client));
+                client->transactionContext->commands.push(std::bind(&ICommand::execute, cmd, std::ref(tokens), command, db, client));
                 response = "QUEUED\n";
             }
             else
