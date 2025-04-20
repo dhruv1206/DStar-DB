@@ -33,13 +33,9 @@ public:
         ICommand *cmd = commandRegistry->getCommand(cmdName);
         if (cmd != nullptr)
         {
-            if (client->transactionContext->inTransaction &&
-                cmdName != Commands::EXEC &&
-                cmdName != Commands::DISCARD &&
-                cmdName != Commands::MULTI &&
-                cmdName != Commands::WATCH)
+            if (shouldQueueCommand(client, cmdName))
             {
-                client->transactionContext->commands.push(std::bind(&ICommand::execute, cmd, std::ref(tokens), command, db, client));
+                client->transactionContext->commands.push(std::bind(&ICommand::execute, cmd, tokens, command, db, client));
                 response = "QUEUED\n";
             }
             else
@@ -56,6 +52,15 @@ public:
 private:
     IDatabase *db;
     CommandRegistry *commandRegistry;
+
+    bool shouldQueueCommand(const std::shared_ptr<Client> &client, const std::string &cmdName)
+    {
+        return client->transactionContext->inTransaction &&
+               cmdName != Commands::EXEC &&
+               cmdName != Commands::DISCARD &&
+               cmdName != Commands::MULTI &&
+               cmdName != Commands::WATCH;
+    }
 };
 
 #endif // COMMAND_PROCESSOR_H
