@@ -6,13 +6,12 @@
 #include <sstream>
 #include <vector>
 #include "../../../IStreamValue.h"
-#include "../../../ConcreteValues/Stream/StreamMessage.h"
 
 class XPENDINGCommand : public ICommand
 {
 public:
     // Syntax: XPENDING <key> <group>
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() != 3)
         {
@@ -22,7 +21,7 @@ public:
         std::string groupName = tokens[2];
         try
         {
-            auto record = db->getRecord(key);
+            auto record = db->getRecord(key, client);
             if (!record->getValue() || record->getValue()->getType() != "stream")
             {
                 return "ERR key " + key + " is not a stream\n\r";

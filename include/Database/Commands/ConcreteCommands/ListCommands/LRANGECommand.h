@@ -12,7 +12,7 @@ class LRANGECommand : public ICommand
 {
 public:
     // Expects: LRANGE <key> <start> <stop>
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() != 4)
         {
@@ -23,7 +23,7 @@ public:
         int stop = std::stoi(tokens[3]);
         try
         {
-            auto record = db->getRecord(key);
+            auto record = db->getRecord(key, client);
             if (!record->getValue() || record->getValue()->getType() != "list")
             {
                 return "ERR record is not a list\n";

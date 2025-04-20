@@ -8,15 +8,13 @@
 #include "../../../ValueFactory.h"
 #include <memory>
 #include <string>
-#include <sstream>
 #include <vector>
-#include <iostream>
 #include <any>
 
 class HMSETCommand : public ICommand
 {
 public:
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() < 4 || tokens.size() % 2 != 0)
         {
@@ -28,7 +26,7 @@ public:
             std::shared_ptr<Record> record;
             try
             {
-                record = db->getRecord(key);
+                record = db->getRecord(key, client);
             }
             catch (const std::exception &e)
             {
@@ -49,7 +47,7 @@ public:
                     }
                     hashValuePtr->set(field, valueStr);
                 }
-                db->insertRecord(key, std::move(hashValue));
+                db->insertRecord(key, std::move(hashValue), client);
             }
             else
             {

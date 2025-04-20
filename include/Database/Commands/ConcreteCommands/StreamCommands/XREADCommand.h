@@ -13,7 +13,7 @@
 class XREADCommand : public ICommand
 {
 public:
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         // Minimum tokens: XREAD STREAMS key id  -> 4 tokens.
         if (tokens.size() < 4)
@@ -81,7 +81,7 @@ public:
                 std::string key = keys[i];
                 StreamId lastId = StreamId::parse(ids[i]);
                 // Attempt to get the record for the stream.
-                auto record = db->getRecord(key);
+                auto record = db->getRecord(key, client);
                 if (!record->getValue() || record->getValue()->getType() != "stream")
                 {
                     oss << "ERR key " << key << " is not a stream\n\r";

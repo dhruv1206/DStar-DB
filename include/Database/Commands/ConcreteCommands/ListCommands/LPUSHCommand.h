@@ -12,7 +12,7 @@ class LPUSHCommand : public ICommand
 {
 public:
     // Expects: LPUSH <key> <value> [<value> ...]
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() < 3)
         {
@@ -21,7 +21,7 @@ public:
         std::string key = tokens[1];
         try
         {
-            auto record = db->getRecord(key);
+            auto record = db->getRecord(key, client);
             for (size_t i = 2; i < tokens.size(); ++i)
             {
                 auto listValue = dynamic_cast<IListValue *>(record->getValue());
@@ -44,7 +44,7 @@ public:
             {
                 listValuePtr->lpush(tokens[i]);
             }
-            db->insertRecord(key, std::move(listValue));
+            db->insertRecord(key, std::move(listValue), client);
         }
         return "OK\n";
     }

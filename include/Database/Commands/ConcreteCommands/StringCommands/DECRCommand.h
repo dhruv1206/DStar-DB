@@ -6,22 +6,20 @@
 #include "../../../ValueFactory.h"
 #include <stdexcept>
 #include <string>
-#include <sstream>
 #include <vector>
-#include <iostream>
 #include <any>
 
 class DECRCommand : public ICommand
 {
 public:
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() != 2)
         {
             return "ERR wrong usage of DECR command, expected DECR <key>\n";
         }
         std::string key = tokens[1];
-        auto value = db->getRecord(key);
+        auto value = db->getRecord(key, client);
         if (value == nullptr)
         {
             return "ERR key does not exist\n";
@@ -35,7 +33,7 @@ public:
             int currentValue = std::stoi(std::any_cast<std::string>(value->getValue()->get()));
             currentValue--;
             auto newValue = ValueFactory::createValue(ValueType::STRING, std::to_string(currentValue));
-            db->updateRecord(key, std::move(newValue));
+            db->updateRecord(key, std::move(newValue), client);
         }
         catch (const std::invalid_argument &e)
         {

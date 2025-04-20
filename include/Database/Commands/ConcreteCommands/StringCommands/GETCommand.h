@@ -4,16 +4,13 @@
 #include "../../../IDatabase.h"
 #include <string>
 #include "../../ICommand.h"
-#include <sstream>
 #include <vector>
-#include <iostream>
 #include "../../../IValue.h"
-#include "../../../ConcreteValues/StringValue.h"
 
 class GETCommand : public ICommand
 {
 public:
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() != 2)
         {
@@ -23,7 +20,7 @@ public:
         std::string key = tokens[1];
         try
         {
-            auto record = db->getRecord(key);
+            auto record = db->getRecord(key, client);
             return "VALUE " + record->getValue()->toString() + "\n";
         }
         catch (const std::exception &e)

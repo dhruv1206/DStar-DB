@@ -3,16 +3,14 @@
 
 #include "../../../IDatabase.h"
 #include "../../ICommand.h"
-#include <sstream>
 #include <vector>
-#include <iostream>
 #include <memory>
 #include "XGROUPCREATECommand.h"
 
 class XGROUPCommand : public ICommand
 {
 public:
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() < 2)
         {
@@ -21,7 +19,7 @@ public:
         std::string subCommand = tokens[1];
         if (subCommand == "CREATE")
         {
-            return XGROUPCREATECommand().execute(tokens, command, db);
+            return XGROUPCREATECommand().execute(tokens, command, db, client);
         }
         else
         {

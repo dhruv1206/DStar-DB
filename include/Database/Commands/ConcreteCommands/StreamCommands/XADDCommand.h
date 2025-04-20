@@ -13,7 +13,7 @@ class XADDCommand : public ICommand
 {
 public:
     // Format: XADD <key> <field1> <value1> [<field2> <value2> ...]
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() < 4 || tokens.size() % 2 != 0)
         {
@@ -28,7 +28,7 @@ public:
         try
         {
             // Retrieve or create the stream.
-            auto record = db->getRecord(key);
+            auto record = db->getRecord(key, client);
             auto streamVal = dynamic_cast<StreamValue *>(record->getValue());
             if (!streamVal)
             {
@@ -46,7 +46,7 @@ public:
                 return "ERR failed to create stream value\n";
             }
             auto messageId = streamValuePtr->xadd(fields);
-            db->insertRecord(key, std::move(streamValue));
+            db->insertRecord(key, std::move(streamValue), client);
             return messageId.toString() + "\n";
         }
     }

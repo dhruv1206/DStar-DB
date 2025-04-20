@@ -100,9 +100,11 @@ private:
     const std::string welcomeMessage = "\033[32mWelcome to DStarDB!\033[0m\n\n\r";
     const std::string prompt = "\033[32mDStarDB> \033[0m";
 
-    void handleClient(Client *client)
+    void handleClient(std::shared_ptr<Client> client)
     {
-        const char *localPrompt = "\033[32mDStarDB> \033[0m";
+        const char *normalPrompt = "\033[32mDStarDB> \033[0m";
+        const char *transactionPrompt = "\033[32mDStarDB(TXN)> \033[0m";
+
         int sock = client->getSocket();
         std::string data;
         // readData() reads data from the client.
@@ -206,7 +208,7 @@ private:
             {
                 std::shared_ptr<CommandProcessor> localCommandProcessor = commandProcessor;
                 GlobalThreadPool::getInstance().enqueue(
-                    [localPrompt, localCommandProcessor, client]()
+                    [normalPrompt, transactionPrompt, localCommandProcessor, client]()
                     {
                         // Send a newline to properly break the line.
                         const char *newline = "\n\r";
@@ -218,13 +220,13 @@ private:
                         if (!buffer.empty())
                         {
                             std::string response;
-                            localCommandProcessor->processCommand(buffer, response);
+                            localCommandProcessor->processCommand(buffer, response, client);
                             client->writeData(response);
                             client->writeData(newline, 2);
                             client->addCommandToHistory(buffer);
                         }
-                        client->clearBuffer();          // Clear the buffer for the next command
-                        client->writeData(localPrompt); // Send prompt again
+                        client->clearBuffer();                                                                             // Clear the buffer for the next command
+                        client->writeData((client->transactionContext->inTransaction ? transactionPrompt : normalPrompt)); // Send prompt again
                     });
             }
             else
