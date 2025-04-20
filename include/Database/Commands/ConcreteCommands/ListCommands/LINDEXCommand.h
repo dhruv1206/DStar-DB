@@ -11,7 +11,7 @@
 class LINDEXCommand : public ICommand
 {
 public:
-    // Expects: LINDEX <key>
+    // Expects: LINDEX <key> <index>
     std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() != 3)
