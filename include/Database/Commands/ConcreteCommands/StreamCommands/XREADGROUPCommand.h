@@ -12,7 +12,7 @@ class XREADGROUPCommand : public ICommand
 {
 public:
     // Syntax: XREADGROUP GROUP <group> <consumer> [COUNT count] STREAMS key [key ...] id [id ...]
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() < 6)
         {
@@ -68,7 +68,7 @@ public:
             {
                 std::string key = keys[i];
                 StreamId lastId = StreamId::parse(ids[i]);
-                auto record = db->getRecord(key);
+                auto record = db->getRecord(key, client);
                 if (!record->getValue() || record->getValue()->getType() != "stream")
                 {
                     oss << "ERR key " << key << " is not a stream\n\r";

@@ -4,19 +4,16 @@
 #include "../../../IDatabase.h"
 #include "../../../ValueFactory.h"
 #include "../../ICommand.h"
-#include <sstream>
 #include <vector>
-#include <iostream>
 #include <memory>
 #include "../../../IStreamValue.h"
 #include "../../../ConcreteValues/Stream/StreamMessage.h"
-#include "../../../ConcreteValues/StreamValue.h"
 
 class XGROUPCREATECommand : public ICommand
 {
 public:
     // Syntax: XGROUP CREATE <key> <groupname> <id|$> [MKSTREAM]
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() < 5)
         {
@@ -36,7 +33,7 @@ public:
             std::shared_ptr<Record> record;
             try
             {
-                record = db->getRecord(key);
+                record = db->getRecord(key, client);
             }
             catch (const std::exception &e)
             {
@@ -47,8 +44,8 @@ public:
                 if (mkstream)
                 {
                     std::unique_ptr<IValue> streamValue = ValueFactory::createValue(ValueType::STREAM, std::any());
-                    db->insertRecord(key, std::move(streamValue));
-                    record = db->getRecord(key);
+                    db->insertRecord(key, std::move(streamValue), client);
+                    record = db->getRecord(key, client);
                 }
                 else
                 {
@@ -65,7 +62,7 @@ public:
         }
         catch (const std::exception &ex)
         {
-            return std::string("ERR ") + ex.what() + "\n\r"; 
+            return std::string("ERR ") + ex.what() + "\n\r";
         }
     }
 };

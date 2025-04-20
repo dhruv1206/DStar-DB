@@ -76,7 +76,20 @@ public:
         return expirationTime;
     }
 
+    // Get the version of the record.
+    uint64_t getVersion() const
+    {
+        return version.load();
+    }
+
+    // Increment the version of the record atomically.
+    void incrementVersion()
+    {
+        version.fetch_add(1, std::memory_order_relaxed);
+    }
+
 private:
+    std::atomic<uint64_t> version{0};
     std::string id;
     std::unique_ptr<IValue> value;
     mutable std::shared_mutex record_mutex;

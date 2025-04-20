@@ -11,7 +11,7 @@
 class HGETALLCommand : public ICommand
 {
 public:
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() != 2)
         {
@@ -20,7 +20,7 @@ public:
         std::string key = tokens[1];
         try
         {
-            auto record = db->getRecord(key);
+            auto record = db->getRecord(key, client);
             if (record)
             {
                 std::string ret = record->getValue()->toString();

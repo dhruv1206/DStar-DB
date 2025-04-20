@@ -8,7 +8,7 @@
 class InvalidCommand : public ICommand
 {
 public:
-    std::string execute(std::vector<std::string> &, const std::string &command, IDatabase *) override
+    std::string execute(std::vector<std::string> &, const std::string &command, IDatabase *, std::shared_ptr<Client>) override
     {
         return "ERR unknown command\n";
     }

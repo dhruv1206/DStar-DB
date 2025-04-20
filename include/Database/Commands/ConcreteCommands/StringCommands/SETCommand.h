@@ -5,15 +5,13 @@
 #include "../../ICommand.h"
 #include "../../../ValueFactory.h"
 #include <string>
-#include <sstream>
 #include <vector>
-#include <iostream>
 #include <any>
 
 class SETCommand : public ICommand
 {
 public:
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() < 3)
         {
@@ -22,7 +20,7 @@ public:
         std::string key = tokens[1];
         std::string valueStr = command.substr(command.find(key) + key.length() + 1);
         auto value = ValueFactory::createValue(ValueType::STRING, valueStr);
-        db->updateRecord(key, std::move(value));
+        db->updateRecord(key, std::move(value), client);
         return "OK\n";
     }
 };

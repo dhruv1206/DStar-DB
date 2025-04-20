@@ -12,7 +12,7 @@ class PFADDCommand : public ICommand
 {
 public:
     // PFADD <key> <element> [element ...]
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() < 3)
         {
@@ -22,7 +22,7 @@ public:
         // Retrieve or create HyperLogLog.
         try
         {
-            auto record = db->getRecord(key);
+            auto record = db->getRecord(key, client);
             auto hll = dynamic_cast<HyperLogLogValue *>(record->getValue());
             if (!hll)
                 return "ERR internal type mismatch in PFADD\n";
@@ -41,7 +41,7 @@ public:
             {
                 hll->add(tokens[i]);
             }
-            db->insertRecord(key, std::move(hllValue));
+            db->insertRecord(key, std::move(hllValue), client);
         }
         return "OK\n";
     }

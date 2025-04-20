@@ -4,6 +4,7 @@
 #include "unordered_map"
 #include "string"
 #include "ICommand.h"
+#include "Commands.h"
 #include "../Commands/ConcreteCommands/StringCommands/SETCommand.h"
 #include "../Commands/ConcreteCommands/StringCommands/GETCommand.h"
 #include "../Commands/ConcreteCommands/PINGCommand.h"
@@ -48,6 +49,10 @@
 #include "../Commands/ConcreteCommands/StreamCommands/XPENDINGCommand.h"
 #include "../Commands/ConcreteCommands/StreamCommands/XACKCommand.h"
 #include "../Commands/ConcreteCommands/StreamCommands/XREADGROUPCommand.h"
+#include "../Commands/ConcreteCommands/TransactionCommands/WATCHCommand.h"
+#include "../Commands/ConcreteCommands/TransactionCommands/MULTICommand.h"
+#include "../Commands/ConcreteCommands/TransactionCommands/EXECCommand.h"
+#include "../Commands/ConcreteCommands/TransactionCommands/DISCARDCommand.h"
 
 class CommandRegistry
 {
@@ -55,50 +60,54 @@ public:
     CommandRegistry()
     {
         // Register commands
-        commands["SET"] = std::make_unique<SETCommand>();
-        commands["GET"] = std::make_unique<GETCommand>();
-        commands["PING"] = std::make_unique<PINGCommand>();
-        commands["INVALID"] = std::make_unique<InvalidCommand>();
-        commands["EXPIRE"] = std::make_unique<EXPIRECommand>();
-        commands["EXISTS"] = std::make_unique<EXISTSCommand>();
-        commands["DEL"] = std::make_unique<DELCommand>();
-        commands["PERSIST"] = std::make_unique<PERSISTCommand>();
-        commands["INCR"] = std::make_unique<INCRCommand>();
-        commands["INCRBY"] = std::make_unique<INCRBYCommand>();
-        commands["DECR"] = std::make_unique<DECRCommand>();
-        commands["DECRBY"] = std::make_unique<DECRBYCommand>();
-        commands["TYPE"] = std::make_unique<TYPECommand>();
-        commands["HGETALL"] = std::make_unique<HGETALLCommand>();
-        commands["HGET"] = std::make_unique<HGETCommand>();
-        commands["HMSET"] = std::make_unique<HMSETCommand>();
-        commands["HDEL"] = std::make_unique<HDELCommand>();
-        commands["HEXISTS"] = std::make_unique<HEXISTSCommand>();
-        commands["LPUSH"] = std::make_unique<LPUSHCommand>();
-        commands["RPUSH"] = std::make_unique<RPUSHCommand>();
-        commands["LRANGE"] = std::make_unique<LRANGECommand>();
-        commands["LPOP"] = std::make_unique<LPOPCommand>();
-        commands["RPOP"] = std::make_unique<RPOPCommand>();
-        commands["LLEN"] = std::make_unique<LLENCommand>();
-        commands["LINDEX"] = std::make_unique<LINDEXCommand>();
-        commands["SADD"] = std::make_unique<SADDCommand>();
-        commands["SREM"] = std::make_unique<SREMCommand>();
-        commands["SMEMBERS"] = std::make_unique<SMEMBERSCommand>();
-        commands["SISMEMBER"] = std::make_unique<SISMEMBERCommand>();
-        commands["SCARD"] = std::make_unique<SCARDCommand>();
-        commands["ZADD"] = std::make_unique<ZADDCommand>();
-        commands["ZREM"] = std::make_unique<ZREMCommand>();
-        commands["ZCARD"] = std::make_unique<ZCARDCommand>();
-        commands["ZISMEMBER"] = std::make_unique<ZISMEMBERCommand>();
-        commands["ZMEMBERS"] = std::make_unique<ZMEMBERSCommand>();
-        commands["PFADD"] = std::make_unique<PFADDCommand>();
-        commands["PFCOUNT"] = std::make_unique<PFCOUNTCommand>();
-        commands["XADD"] = std::make_unique<XADDCommand>();
-        commands["XREAD"] = std::make_unique<XREADCommand>();
-        commands["XRANGE"] = std::make_unique<XRANGECommand>();
-        commands["XGROUP"] = std::make_unique<XGROUPCommand>();
-        commands["XPENDING"] = std::make_unique<XPENDINGCommand>();
-        commands["XACK"] = std::make_unique<XACKCommand>();
-        commands["XREADGROUP"] = std::make_unique<XREADGROUPCommand>();
+        commands[Commands::SET] = std::make_unique<SETCommand>();
+        commands[Commands::GET] = std::make_unique<GETCommand>();
+        commands[Commands::PING] = std::make_unique<PINGCommand>();
+        commands[Commands::INVALID] = std::make_unique<InvalidCommand>();
+        commands[Commands::EXPIRE] = std::make_unique<EXPIRECommand>();
+        commands[Commands::EXISTS] = std::make_unique<EXISTSCommand>();
+        commands[Commands::DEL] = std::make_unique<DELCommand>();
+        commands[Commands::PERSIST] = std::make_unique<PERSISTCommand>();
+        commands[Commands::INCR] = std::make_unique<INCRCommand>();
+        commands[Commands::INCRBY] = std::make_unique<INCRBYCommand>();
+        commands[Commands::DECR] = std::make_unique<DECRCommand>();
+        commands[Commands::DECRBY] = std::make_unique<DECRBYCommand>();
+        commands[Commands::TYPE] = std::make_unique<TYPECommand>();
+        commands[Commands::HGETALL] = std::make_unique<HGETALLCommand>();
+        commands[Commands::HGET] = std::make_unique<HGETCommand>();
+        commands[Commands::HMSET] = std::make_unique<HMSETCommand>();
+        commands[Commands::HDEL] = std::make_unique<HDELCommand>();
+        commands[Commands::HEXISTS] = std::make_unique<HEXISTSCommand>();
+        commands[Commands::LPUSH] = std::make_unique<LPUSHCommand>();
+        commands[Commands::RPUSH] = std::make_unique<RPUSHCommand>();
+        commands[Commands::LRANGE] = std::make_unique<LRANGECommand>();
+        commands[Commands::LPOP] = std::make_unique<LPOPCommand>();
+        commands[Commands::RPOP] = std::make_unique<RPOPCommand>();
+        commands[Commands::LLEN] = std::make_unique<LLENCommand>();
+        commands[Commands::LINDEX] = std::make_unique<LINDEXCommand>();
+        commands[Commands::SADD] = std::make_unique<SADDCommand>();
+        commands[Commands::SREM] = std::make_unique<SREMCommand>();
+        commands[Commands::SMEMBERS] = std::make_unique<SMEMBERSCommand>();
+        commands[Commands::SISMEMBER] = std::make_unique<SISMEMBERCommand>();
+        commands[Commands::SCARD] = std::make_unique<SCARDCommand>();
+        commands[Commands::ZADD] = std::make_unique<ZADDCommand>();
+        commands[Commands::ZREM] = std::make_unique<ZREMCommand>();
+        commands[Commands::ZCARD] = std::make_unique<ZCARDCommand>();
+        commands[Commands::ZISMEMBER] = std::make_unique<ZISMEMBERCommand>();
+        commands[Commands::ZMEMBERS] = std::make_unique<ZMEMBERSCommand>();
+        commands[Commands::PFADD] = std::make_unique<PFADDCommand>();
+        commands[Commands::PFCOUNT] = std::make_unique<PFCOUNTCommand>();
+        commands[Commands::XADD] = std::make_unique<XADDCommand>();
+        commands[Commands::XREAD] = std::make_unique<XREADCommand>();
+        commands[Commands::XRANGE] = std::make_unique<XRANGECommand>();
+        commands[Commands::XGROUP] = std::make_unique<XGROUPCommand>();
+        commands[Commands::XPENDING] = std::make_unique<XPENDINGCommand>();
+        commands[Commands::XACK] = std::make_unique<XACKCommand>();
+        commands[Commands::XREADGROUP] = std::make_unique<XREADGROUPCommand>();
+        commands[Commands::WATCH] = std::make_unique<WATCHCommand>();
+        commands[Commands::MULTI] = std::make_unique<MULTICommand>();
+        commands[Commands::EXEC] = std::make_unique<EXECCommand>();
+        commands[Commands::DISCARD] = std::make_unique<DISCARDCommand>();
     }
 
     ICommand *getCommand(const std::string &commandName)
@@ -108,7 +117,7 @@ public:
         {
             return it->second.get();
         }
-        return commands["INVALID"].get();
+        return commands[Commands::INVALID].get();
     }
 
 private:

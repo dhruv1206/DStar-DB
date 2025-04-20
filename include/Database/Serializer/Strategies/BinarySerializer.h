@@ -3,7 +3,6 @@
 
 #include "../IDBSerializer.h"
 #include "../SerializationHelper.h"
-#include <fstream>
 #include <iostream>
 #include <vector>
 #include <cstdint>
@@ -35,10 +34,11 @@ public:
             const std::shared_ptr<Record> &record = pair.second;
             SerializationHelper::appendToBuffer(buffer, id); // Store the record ID
             auto value = record->getValue();
-            if(!value) { // Skip if value is null
+            if (!value)
+            { // Skip if value is null
                 std::cerr << "Record value is null for ID: " << id << "\n";
                 continue;
-            } 
+            }
             try
             {
                 SerializationHelper::appendToBuffer(buffer, value); // Store the record value
@@ -86,7 +86,7 @@ public:
             }
             try
             {
-                db->insertRecord(record_id, std::move(record_value)); // Insert the record into the database
+                db->insertRecord(record_id, std::move(record_value), nullptr); // Insert the record into the database
             }
             catch (const std::exception &ex)
             {

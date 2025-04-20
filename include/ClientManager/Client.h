@@ -1,6 +1,6 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#pragma once
 
+#include <memory>
 #ifdef _WIN32
 #include <winsock2.h>
 #else
@@ -11,15 +11,17 @@
 #include <vector>
 #include <chrono>
 #include <mutex>
-#include <sstream>
-#include <iostream>
+#include "../Database/IDatabase.h"
+#include "TransactionContext.h"
+#include "../Database/Observer/IDatabaseObserver.h"
 
-class Client
+class Client : public IDatabaseObserver
 {
 public:
     Client(int socket_fd) : sockfd(socket_fd)
     {
         lastActivity = std::chrono::steady_clock::now();
+        transactionContext = std::make_unique<TransactionContext>();
     }
 
     ~Client()
@@ -116,6 +118,32 @@ public:
         return commandHistoryIndex;
     }
 
+    void onRecordModified(const std::string &operation, const std::string &key) override
+    {
+        std::lock_guard<std::mutex> lock(txMutex);
+        if (transactionContext->watchedRecords.find(key) != transactionContext->watchedRecords.end())
+        {
+            transactionContext->dirty = true;
+        }
+    }
+
+    void onRecordModified(const std::string &operation, const std::string &key, IValue *) override
+    {
+        onRecordModified(operation, key);
+    }
+
+    void clearTransaction(IDatabase *db)
+    {
+        std::lock_guard<std::mutex> lock(txMutex);
+        for (const std::string &watchedRecord : transactionContext->watchedRecords)
+        {
+            db->unregisterRecordObserver(watchedRecord, this);
+        }
+        transactionContext->clear();
+    }
+
+    std::unique_ptr<TransactionContext> transactionContext;
+
 private:
     int sockfd;
     mutable std::mutex activityMutex;
@@ -124,6 +152,5 @@ private:
     int commandHistoryIndex = -1;
     mutable std::mutex bufferMutex;
     std::string buffer;
+    std::mutex txMutex;
 };
-
-#endif // CLIENT_H

@@ -10,7 +10,7 @@ class ZADDCommand : public ICommand
 {
 public:
     // Expects: ZADD <key> <value> [<value> ...]
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() < 3)
         {
@@ -19,7 +19,7 @@ public:
         std::string key = tokens[1];
         try
         {
-            auto record = db->getRecord(key);
+            auto record = db->getRecord(key, client);
             for (size_t i = 2; i < tokens.size(); ++i)
             {
                 auto setValue = dynamic_cast<ISortedSetValue *>(record->getValue());
@@ -42,7 +42,7 @@ public:
             {
                 setValuePtr->sadd(tokens[i]);
             }
-            db->insertRecord(key, std::move(setValue));
+            db->insertRecord(key, std::move(setValue), client);
         }
         return "OK\n";
     }

@@ -2,6 +2,7 @@
 #define ICOMMAND_H
 
 #include "../IDatabase.h"
+#include "../../ClientManager/Client.h"
 #include <string>
 #include <vector>
 #include <sstream>
@@ -10,7 +11,7 @@ class ICommand
 {
 public:
     virtual ~ICommand() = default;
-    virtual std::string execute(std::vector<std::string> &tokens, const std::string &fullCommand, IDatabase *db) = 0;
+    virtual std::string execute(std::vector<std::string> &tokens, const std::string &fullCommand, IDatabase *db, std::shared_ptr<Client> client) = 0;
     virtual void parseCommand(const std::string &command, std::vector<std::string> &tokens) const
     {
         std::istringstream iss(command);

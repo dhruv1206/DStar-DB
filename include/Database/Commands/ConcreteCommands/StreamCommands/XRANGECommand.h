@@ -12,7 +12,7 @@ class XRANGECommand : public ICommand
 {
 public:
     // Format: XRANGE <key> <start> <end>
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() != 4)
         {
@@ -23,7 +23,7 @@ public:
         std::string end = tokens[3];
         try
         {
-            auto record = db->getRecord(key);
+            auto record = db->getRecord(key, client);
             if (!record->getValue() || record->getValue()->getType() != "stream")
             {
                 return "ERR record is not a stream\n";

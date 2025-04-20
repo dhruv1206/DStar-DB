@@ -12,7 +12,7 @@
 class HDELCommand : public ICommand
 {
 public:
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() < 3)
         {
@@ -24,7 +24,7 @@ public:
             std::shared_ptr<Record> record;
             try
             {
-                record = db->getRecord(key);
+                record = db->getRecord(key, client);
             }
             catch (const std::exception &e)
             {

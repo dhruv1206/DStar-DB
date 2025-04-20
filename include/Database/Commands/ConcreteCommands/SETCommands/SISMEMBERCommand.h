@@ -9,7 +9,7 @@ class SISMEMBERCommand : public ICommand
 {
 public:
     // Expects: SISMEMBER <key> <value> [<value> ...]
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() != 3)
         {
@@ -18,7 +18,7 @@ public:
         std::string key = tokens[1];
         try
         {
-            auto record = db->getRecord(key);
+            auto record = db->getRecord(key, client);
             auto setValue = dynamic_cast<ISetValue *>(record->getValue());
             if (!setValue)
             {

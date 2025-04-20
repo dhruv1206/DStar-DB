@@ -4,14 +4,12 @@
 #include "../../../IDatabase.h"
 #include <string>
 #include "../../ICommand.h"
-#include <sstream>
 #include <vector>
-#include <iostream>
 
 class PERSISTCommand : public ICommand
 {
 public:
-    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db) override
+    std::string execute(std::vector<std::string> &tokens, const std::string &command, IDatabase *db, std::shared_ptr<Client> client) override
     {
         if (tokens.size() != 2)
         {
@@ -21,7 +19,7 @@ public:
         std::string key = tokens[1];
         try
         {
-            db->removeTTL(key);
+            db->removeTTL(key, client);
             return "OK\n";
         }
         catch (const std::exception &e)

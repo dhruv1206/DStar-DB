@@ -6,7 +6,6 @@
 
 #include "../IValue.h"
 #include <chrono>
-#include <iostream>
 
 #include <string>
 #include <unordered_map>
@@ -37,22 +36,22 @@ public:
         }
     }
 
-    void insertRecord(const std::string &id, std::unique_ptr<IValue> value) override
+    void insertRecord(const std::string &id, std::unique_ptr<IValue> value, std::shared_ptr<Client> client) override
     {
         // Delegate to the underlying database.
-        db->insertRecord(id, std::move(value));
+        db->insertRecord(id, std::move(value), client);
         // No TTL provided, so no action needed.
     }
 
     // Insert a record with an optional TTL (in seconds). TTL = 0 means no expiration.
-    void insertRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds) override
+    void insertRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds, std::shared_ptr<Client> client) override
     {
         // Delegate to the underlying database.
-        db->insertRecord(id, std::move(value));
+        db->insertRecord(id, std::move(value), client);
 
         if (ttlSeconds > 0)
         {
-            auto record = db->getRecord(id);
+            auto record = db->getRecord(id, client);
             if (record)
             {
                 record->setTTL(ttlSeconds);
@@ -65,20 +64,20 @@ public:
         }
     }
 
-    void updateRecord(const std::string &id, std::unique_ptr<IValue> value) override
+    void updateRecord(const std::string &id, std::unique_ptr<IValue> value, std::shared_ptr<Client> client) override
     {
         // Delegate to the underlying database.
-        db->updateRecord(id, std::move(value));
+        db->updateRecord(id, std::move(value), client);
         // No TTL provided, so no action needed.
     }
 
     // Update a record and optionally update its TTL.
-    void updateRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds) override
+    void updateRecord(const std::string &id, std::unique_ptr<IValue> value, size_t ttlSeconds, std::shared_ptr<Client> client) override
     {
-        db->updateRecord(id, std::move(value));
+        db->updateRecord(id, std::move(value), client);
         if (ttlSeconds > 0)
         {
-            auto record = db->getRecord(id);
+            auto record = db->getRecord(id, client);
             if (record)
             {
                 record->setTTL(ttlSeconds);
@@ -97,9 +96,9 @@ public:
         }
     }
 
-    void setTTL(const std::string &id, int ttlSeconds) override
+    void setTTL(const std::string &id, int ttlSeconds, std::shared_ptr<Client> client) override
     {
-        auto record = db->getRecord(id);
+        auto record = db->getRecord(id, client);
         if (record)
         {
             record->setTTL(ttlSeconds);
@@ -113,9 +112,9 @@ public:
         }
     }
 
-    void removeTTL(const std::string &id) override
+    void removeTTL(const std::string &id, std::shared_ptr<Client> client) override
     {
-        auto record = db->getRecord(id);
+        auto record = db->getRecord(id, client);
         if (record)
         {
             record->clearTTL();
@@ -129,7 +128,7 @@ public:
     }
 
     // Get a record by id, checking for lazy expiration.
-    std::shared_ptr<Record> getRecord(const std::string &id) override
+    std::shared_ptr<Record> getRecord(const std::string &id, std::shared_ptr<Client> client) override
     {
         {
             std::lock_guard<std::mutex> lock(ttlMutex);
@@ -137,18 +136,18 @@ public:
             if (it != ttlMap.end() && std::chrono::steady_clock::now() > it->second)
             {
                 // Expired: remove the record.
-                db->deleteRecord(id);
+                db->deleteRecord(id, client);
                 ttlMap.erase(it);
                 throw std::runtime_error("Record with id '" + id + "' has expired.");
             }
         }
-        return db->getRecord(id);
+        return db->getRecord(id, client);
     }
 
     // Delete a record.
-    void deleteRecord(const std::string &id) override
+    void deleteRecord(const std::string &id, std::shared_ptr<Client> client) override
     {
-        db->deleteRecord(id);
+        db->deleteRecord(id, client);
         std::lock_guard<std::mutex> lock(ttlMutex);
         ttlMap.erase(id);
     }
@@ -166,7 +165,7 @@ public:
     }
 
     // Active expiration: remove expired keys. (Called by the expiration worker.)
-    void removeExpiredKeys()
+    void removeExpiredKeys(std::shared_ptr<Client> client)
     {
         std::vector<std::string> expired;
         auto now = std::chrono::steady_clock::now();
@@ -189,13 +188,42 @@ public:
         {
             try
             {
-                db->deleteRecord(id);
+                db->deleteRecord(id, client);
             }
             catch (...)
             {
                 // Ignore if record already removed.
             }
         }
+    }
+
+    uint64_t getRecordVersion(const std::string &id) const override
+    {
+        return db->getRecordVersion(id);
+    }
+
+    // Observer registration.
+    void registerObserver(IDatabaseObserver *observer) override
+    {
+        db->registerObserver(observer);
+    }
+
+    // Record specific observer registration.
+    void registerRecordObserver(const std::string &key, IDatabaseObserver *obs) override
+    {
+        db->registerRecordObserver(key, obs);
+    }
+
+    // Record specific observer registration.
+    void unregisterRecordObserver(const std::string &key, IDatabaseObserver *obs) override
+    {
+        db->unregisterRecordObserver(key, obs);
+    }
+
+    // Get entire db lock
+    std::unique_lock<std::shared_mutex> lockDatabase() override
+    {
+        return db->lockDatabase();
     }
 
 private:
@@ -217,7 +245,7 @@ private:
         while (running)
         {
             std::this_thread::sleep_for(std::chrono::seconds(expirationInterval));
-            removeExpiredKeys();
+            removeExpiredKeys(nullptr);
         }
     }
 };

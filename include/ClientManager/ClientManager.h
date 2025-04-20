@@ -13,7 +13,7 @@ public:
     void addClient(int sockfd)
     {
         std::lock_guard<std::mutex> lock(clientsMutex);
-        clients[sockfd] = std::make_unique<Client>(sockfd);
+        clients[sockfd] = std::make_shared<Client>(sockfd);
     }
 
     // Remove a client.
@@ -24,19 +24,19 @@ public:
     }
 
     // Get a snapshot copy of active clients.
-    std::unordered_map<int, Client *> getClients()
+    std::unordered_map<int, std::shared_ptr<Client>> getClients()
     {
         std::lock_guard<std::mutex> lock(clientsMutex);
-        std::unordered_map<int, Client *> snapshot;
+        std::unordered_map<int, std::shared_ptr<Client>> snapshot;
         for (auto &p : clients)
         {
-            snapshot[p.first] = p.second.get();
+            snapshot[p.first] = p.second;
         }
         return snapshot;
     }
 
 private:
-    std::unordered_map<int, std::unique_ptr<Client>> clients;
+    std::unordered_map<int, std::shared_ptr<Client>> clients;
     std::mutex clientsMutex;
 };
 
