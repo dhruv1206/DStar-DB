@@ -32,7 +32,8 @@ public:
     // Get current memory usage (in bytes)
     size_t getCurrentUsage() const;
 
-    static size_t currentUsageBytes;
+    static std::atomic<size_t> currentUsageBytes;
+
 private:
     struct CacheNode
     {

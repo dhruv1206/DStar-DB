@@ -19,7 +19,7 @@ public:
             }
             if (tokens.size() == 2)
             {
-                return formatSize(MemoryManager::currentUsageBytes) + '\n';
+                return formatSize(MemoryManager::currentUsageBytes.load()) + '\n'; // Use load() to get the current value
             }
             std::string key = tokens[2];
             std::shared_ptr<Record> value = db->getRecord(key, client);

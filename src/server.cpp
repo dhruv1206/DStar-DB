@@ -38,7 +38,13 @@ void *operator new(size_t bytes)
     return malloc(bytes);
 }
 
-void operator delete(void *memory, size_t bytes)
+void operator delete(void *memory) noexcept
+{
+    MemoryManager::currentUsageBytes -= sizeof(memory);
+    free(memory);
+}
+
+void operator delete(void *memory, size_t bytes) noexcept
 {
     MemoryManager::currentUsageBytes -= bytes;
     free(memory);
