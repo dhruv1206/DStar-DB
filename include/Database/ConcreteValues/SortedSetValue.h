@@ -96,6 +96,27 @@ public:
         return data.size();
     }
 
+    size_t sizeInBytes() const override
+    {
+        // Base size of the set
+        size_t totalSize = sizeof(SortedSetValue);
+
+        // Add size of all elements plus tree node overhead
+        // Set implemented as RB-tree has roughly 3 pointers per node overhead
+        constexpr size_t NODE_OVERHEAD = 3 * sizeof(void *) + sizeof(bool); // left, right, parent pointers + color
+
+        for (const auto &str : data)
+        {
+            // String capacity + actual string data + small overhead
+            totalSize += str.capacity() + 1; // +1 for null terminator
+
+            // Node overhead for this entry
+            totalSize += NODE_OVERHEAD;
+        }
+
+        return totalSize;
+    }
+
 private:
     std::set<std::string> data;
 };

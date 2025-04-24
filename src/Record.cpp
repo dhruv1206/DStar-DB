@@ -19,11 +19,22 @@ size_t Record::getFrequency() const
 
 size_t Record::approximateSize() const
 {
-    // A simple estimation: base size plus value size.
-    size_t size = sizeof(Record) + id.size();
+    // Base size of the Record object itself
+    size_t totalSize = sizeof(Record);
+
+    // Size of the id string (capacity + actual string data + null terminator)
+    totalSize += id.capacity() + 1;
+
+    // Size of the unique_ptr itself is already counted in sizeof(Record)
+    // But we need to add the size of the pointed-to value if it exists
     if (value)
     {
-        size += value->toString().size();
+        // Add the size of the actual value object using its size() method
+        totalSize += value->sizeInBytes();
     }
-    return size;
+
+    // Other members like atomic variables, mutex, etc. are already
+    // counted in sizeof(Record)
+
+    return totalSize;
 }

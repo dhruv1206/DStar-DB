@@ -1,12 +1,12 @@
 #include "../include/MemoryManager/MemoryManager.h"
 #include "../include/Database/Record.h"
-#include <stdexcept>
-#include <limits>
 
 MemoryManager::MemoryManager(size_t cacheLimitMB)
-    : capacityBytes(cacheLimitMB * 1024 * 1024), currentUsageBytes(0), minFreq(0)
+    : capacityBytes(cacheLimitMB * 1024 * 1024), minFreq(0)
 {
 }
+
+size_t MemoryManager::currentUsageBytes = 0;
 
 void MemoryManager::insertKey(const std::string &id, size_t size)
 {
@@ -18,7 +18,6 @@ void MemoryManager::insertKey(const std::string &id, size_t size)
     keyIterators[id] = --freqList[1].end();
     // Set minFreq to 1 since we just inserted a key with freq 1.
     minFreq = 1;
-    currentUsageBytes += size;
 }
 
 void MemoryManager::touch(const std::string &id)
@@ -67,8 +66,6 @@ void MemoryManager::removeKey(const std::string &id)
     keyIterators.erase(id);
     if (minFreq == freq && freqList.find(freq) == freqList.end())
         minFreq = (freqList.empty() ? 0 : freqList.begin()->first);
-
-    currentUsageBytes = (currentUsageBytes < size) ? 0 : currentUsageBytes - size;
 }
 
 size_t MemoryManager::getCurrentUsage() const
@@ -95,7 +92,6 @@ void MemoryManager::evictIfNeeded(std::unordered_map<std::string, std::shared_pt
         if (nodeIt != cacheNodes.end())
         {
             size_t recSize = nodeIt->second.size;
-            currentUsageBytes = (currentUsageBytes < recSize) ? 0 : currentUsageBytes - recSize;
             cacheNodes.erase(evictKey);
             keyIterators.erase(evictKey);
         }

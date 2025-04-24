@@ -43,6 +43,12 @@ public:
         }
     }
 
+    size_t sizeInBytes() const override
+    {
+        // String capacity + actual string data + small overhead
+        return sizeof(StringValue) + value.capacity() + 1; // +1 for null terminator
+    }
+
 private:
     std::string value;
 };

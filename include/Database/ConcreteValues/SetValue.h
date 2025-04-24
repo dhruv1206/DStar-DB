@@ -96,6 +96,30 @@ public:
         return data.size();
     }
 
+    size_t sizeInBytes() const override
+    {
+        // Base size of the unordered_set
+        size_t totalSize = sizeof(SetValue);
+
+        // Add size of all elements plus node overhead
+        // Unordered_set has roughly 2 pointers per entry overhead
+        constexpr size_t NODE_OVERHEAD = 2 * sizeof(void *);
+
+        for (const auto &str : data)
+        {
+            // String capacity + actual string data + small overhead
+            totalSize += str.capacity() + 1; // +1 for null terminator
+
+            // Node overhead for this entry
+            totalSize += NODE_OVERHEAD;
+        }
+
+        // Hashtable overhead (buckets array)
+        totalSize += data.bucket_count() * sizeof(void *);
+
+        return totalSize;
+    }
+
 private:
     std::unordered_set<std::string> data;
 };

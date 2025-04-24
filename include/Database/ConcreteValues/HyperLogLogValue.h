@@ -28,7 +28,7 @@ public:
 
     std::any get() const override
     {
-        return std::make_any<HyperLogLogValue>(*this);
+        return estimate();
     }
 
     std::string toString() const override
@@ -116,6 +116,17 @@ public:
             }
             registers[i] = static_cast<uint8_t>(regVal);
         }
+    }
+
+    size_t sizeInBytes() const override
+    {
+        // Base size of the object
+        size_t totalSize = sizeof(HyperLogLogValue);
+
+        // Add size of registers vector - each register is a uint8_t (1 byte)
+        totalSize += registers.capacity() * sizeof(uint8_t);
+
+        return totalSize;
     }
 
 private:

@@ -167,6 +167,89 @@ public:
         return msgs;
     }
 
+    size_t sizeInBytes() const override
+    {
+        // Base size of the StreamValue object
+        size_t totalSize = sizeof(StreamValue);
+
+        // Size of the map container for messages
+        // std::map is typically implemented as a red-black tree with overhead per node
+        constexpr size_t MAP_NODE_OVERHEAD = 3 * sizeof(void *) + sizeof(bool); // left, right, parent pointers + color
+
+        // Add size of all messages
+        for (const auto &pair : messages)
+        {
+            // StreamId structure size
+            totalSize += sizeof(StreamId);
+
+            // StreamMessage structure size
+            totalSize += sizeof(StreamMessage);
+
+            // Add size for fields in each message
+            for (const auto &field : pair.second.fields)
+            {
+                // Key string size: capacity + actual string data + null terminator
+                totalSize += field.first.capacity() + 1;
+
+                // Value string size: capacity + actual string data + null terminator
+                totalSize += field.second.capacity() + 1;
+            }
+
+            // Unordered_map overhead for fields
+            // Approximately one pointer per bucket plus node overhead per entry
+            totalSize += pair.second.fields.bucket_count() * sizeof(void *);
+            totalSize += pair.second.fields.size() * (2 * sizeof(void *)); // Node overhead for entries
+
+            // Node overhead for this message in the map
+            totalSize += MAP_NODE_OVERHEAD;
+        }
+
+        // Consumer groups container size
+        std::lock_guard<std::mutex> lock(cgMutex);
+
+        // Size of the unordered_map container
+        totalSize += consumerGroups.bucket_count() * sizeof(void *);
+
+        // Add size of all consumer groups
+        for (const auto &group : consumerGroups)
+        {
+            // String for group name: capacity + actual string data + null terminator
+            totalSize += group.first.capacity() + 1;
+
+            // Pointer to ConsumerGroup
+            totalSize += sizeof(std::unique_ptr<ConsumerGroup>);
+
+            // ConsumerGroup object itself
+            const ConsumerGroup *cg = group.second.get();
+            if (cg)
+            {
+                // ConsumerGroup base size
+                totalSize += sizeof(ConsumerGroup);
+
+                // Group name string: capacity + actual string data + null terminator
+                totalSize += cg->getGroupName().capacity() + 1;
+
+                // StreamId for lastDeliveredId
+                totalSize += sizeof(StreamId);
+
+                // For consumers map (unordered_map<string, Consumer>):
+                // Assuming average of 10 consumers per group with average name length of 10
+                // Each Consumer object has a name string
+                totalSize += 10 * (sizeof(Consumer) + 10 + 1);
+                totalSize += 20 * sizeof(void *); // Bucket array + node overhead
+
+                // For pending map (unordered_map<StreamId, PendingEntry>):
+                // Assuming average of 50 pending entries per group
+                totalSize += 50 * (sizeof(PendingEntry) + sizeof(StreamId) + 10 + 1); // Average consumer name length 10
+                totalSize += 100 * sizeof(void *);                                    // Bucket array + node overhead
+
+                // Mutex size
+                totalSize += sizeof(std::mutex);
+            }
+        }
+        return totalSize;
+    }
+
 private:
     // Use ordered map to maintain the order of insertion.
     std::map<StreamId, StreamMessage> messages;

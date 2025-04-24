@@ -40,7 +40,17 @@ public:
             }
             else
             {
-                response = cmd->execute(tokens, command, db, client);
+                try{
+                    response = cmd->execute(tokens, command, db, client);
+                }
+                catch (const std::exception &e)
+                {
+                    response = "ERR " + std::string(e.what()) + "\n";
+                }
+                catch (...)
+                {
+                    response = "ERR unknown error\n";
+                }
             }
         }
         else
