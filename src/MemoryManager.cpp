@@ -6,7 +6,7 @@ MemoryManager::MemoryManager(size_t cacheLimitMB)
 {
 }
 
-size_t MemoryManager::currentUsageBytes = 0;
+std::atomic<size_t> MemoryManager::currentUsageBytes = 0;
 
 void MemoryManager::insertKey(const std::string &id, size_t size)
 {
