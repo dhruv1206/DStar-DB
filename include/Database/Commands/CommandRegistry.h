@@ -53,6 +53,7 @@
 #include "../Commands/ConcreteCommands/TransactionCommands/MULTICommand.h"
 #include "../Commands/ConcreteCommands/TransactionCommands/EXECCommand.h"
 #include "../Commands/ConcreteCommands/TransactionCommands/DISCARDCommand.h"
+#include "../Commands/ConcreteCommands/MemoryCommands/MEMORYCommand.h"
 
 class CommandRegistry
 {
@@ -108,6 +109,7 @@ public:
         commands[Commands::MULTI] = std::make_unique<MULTICommand>();
         commands[Commands::EXEC] = std::make_unique<EXECCommand>();
         commands[Commands::DISCARD] = std::make_unique<DISCARDCommand>();
+        commands[Commands::MEMORY] = std::make_unique<MEMORYCommand>();
     }
 
     ICommand *getCommand(const std::string &commandName)

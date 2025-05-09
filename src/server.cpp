@@ -17,6 +17,7 @@
 #include <cstring>
 #include <thread>
 #include <atomic>
+#include <memory>
 #include "../include/Database/Database.h"
 #include "../include/Database/IDatabase.h"
 #include "../include/Database/Commands/CommandRegistry.h"
@@ -30,6 +31,18 @@
 #include "../include/EventLoop.h"
 
 std::atomic<bool> running(true);
+
+void *operator new(size_t bytes)
+{
+    MemoryManager::currentUsageBytes += bytes;
+    return malloc(bytes);
+}
+
+void operator delete(void *memory, size_t bytes) noexcept
+{
+    MemoryManager::currentUsageBytes -= bytes;
+    free(memory);
+}
 
 #ifdef _WIN32
 BOOL WINAPI handleSignal(DWORD signal)

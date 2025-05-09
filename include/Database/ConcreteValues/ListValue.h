@@ -114,6 +114,24 @@ public:
         return value.size();
     }
 
+    size_t sizeInBytes() const override
+    {
+        // Base size of the vector
+        size_t totalSize = sizeof(ListValue);
+
+        // Add capacity of vector container
+        totalSize += value.capacity() * sizeof(std::string);
+
+        // Add size of all elements
+        for (const auto &str : value)
+        {
+            // Each string's capacity + actual string data + small overhead
+            totalSize += str.capacity() + 1; // +1 for null terminator
+        }
+
+        return totalSize;
+    }
+
 private:
     std::vector<std::string> value;
 };

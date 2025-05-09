@@ -30,6 +30,9 @@ public:
     {
         throw std::runtime_error("Deserialization not implemented for this type.");
     }
+
+    // Approximate memory usage of this value in bytes, including container overhead.
+    virtual size_t sizeInBytes() const = 0;
 };
 
 #endif // IVALUE_H

@@ -32,6 +32,8 @@ public:
     // Get current memory usage (in bytes)
     size_t getCurrentUsage() const;
 
+    static std::atomic<size_t> currentUsageBytes;
+
 private:
     struct CacheNode
     {
@@ -40,7 +42,6 @@ private:
     };
 
     size_t capacityBytes;
-    size_t currentUsageBytes;
     size_t minFreq;
 
     // Mapping from record id to its frequency and size.

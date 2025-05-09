@@ -90,6 +90,33 @@ public:
         }
     }
 
+    size_t sizeInBytes() const override
+    {
+        // Base size of the unordered_map
+        size_t totalSize = sizeof(HashValue);
+
+        // Add size of all keys and values, plus node overhead
+        // Unordered_map has roughly 3 pointers per entry overhead plus the entry itself
+        constexpr size_t NODE_OVERHEAD = 3 * sizeof(void *);
+
+        for (const auto &pair : value)
+        {
+            // Key string capacity + actual string data + small string overhead
+            totalSize += pair.first.capacity() + 1; // +1 for null terminator
+
+            // Value string capacity + actual string data + small string overhead
+            totalSize += pair.second.capacity() + 1; // +1 for null terminator
+
+            // Node overhead for this entry
+            totalSize += NODE_OVERHEAD;
+        }
+
+        // Hashtable overhead (buckets array)
+        totalSize += value.bucket_count() * sizeof(void *);
+
+        return totalSize;
+    }
+
 private:
     std::unordered_map<std::string, std::string> value;
 };

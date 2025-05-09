@@ -72,6 +72,9 @@ public:
     // Misc
     static constexpr const char *PING = "PING";
     static constexpr const char *INVALID = "INVALID";
+
+    // Memory
+    static constexpr const char *MEMORY = "MEMORY";
 };
 
 #endif // COMMANDS_H
